@@ -1,11 +1,10 @@
 package com.example;
 
-
 public class Pawn
 {
     private int x;
     private int y;
-    private String color;
+    private final String color;
 
     public Pawn(int x, int y, String color)
     {
