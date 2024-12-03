@@ -1,6 +1,16 @@
 [package]
-name = "Server"
+name = "multi-bin-example"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+
+# Konfiguracja dla Server.rs
+[[bin]]
+name = "server"      # Nazwa binarki: 'server'
+path = "src/Server.rs" # Ścieżka do pliku Server.rs
+
+# Konfiguracja dla Client.rs
+[[bin]]
+name = "client"      # Nazwa binarki: 'client'
+path = "src/Client.rs" # Ścieżka do pliku Client.rs

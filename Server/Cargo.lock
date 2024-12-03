@@ -3,5 +3,5 @@
 version = 3
 
 [[package]]
-name = "Server"
+name = "multi-bin-example"
 version = "0.1.0"
