@@ -56,6 +56,16 @@ fn handle_client(stream: TcpStream, clients: Arc<Mutex<Vec<TcpStream>>>) //Arc -
     println!("Klient usuniety");
 }
 
+/*fn parse_message(message: &str) -> Option<Command>
+{
+    //
+}
+
+enum Command
+{
+    Move { from(u8, u8), to: (u8, u8) }
+}*/
+
 
 fn main() -> std::io::Result<()>
 {
