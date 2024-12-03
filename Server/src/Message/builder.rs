@@ -4,11 +4,11 @@ use super::traits::Message;
 
 pub struct MessageBuilder
 {
-    kind: Option<String>;
-    error_code: Option<u16>;
-    error_message: Option<String>;
-    from: Option<(u8, u8)>;
-    to: Option<(u8, u8)>;
+    kind: Option<String>,
+    error_code: Option<u16>,
+    error_message: Option<String>,
+    from: Option<(u8, u8)>,
+    to: Option<(u8, u8)>,
 }
 
 impl MessageBuilder
@@ -33,13 +33,13 @@ impl MessageBuilder
 
     pub fn error_code(mut self, error_code: u16) -> Self
     {
-        self.error_code = Some(code);
+        self.error_code = Some(error_code);
         return self
     }
 
     pub fn error_message(mut self, error_message: &str) -> Self
     {
-        self.error_message = Some(message.to_string());
+        self.error_message = Some(error_message.to_string());
         return self
     }
 
@@ -72,4 +72,4 @@ impl MessageBuilder
             _ => panic!("Nieznany typ wiadomości"),
         }
     }
-
+}
