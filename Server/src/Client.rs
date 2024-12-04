@@ -7,6 +7,14 @@ use Message::move_message;
 use Message::error_message;
 use Message::builder;
 
+fn parse_coords(input: &str) -> (u8, u8)
+{
+    let mut parts = input.split(',');
+    let x = parts.next().unwrap().parse().unwrap();
+    let y = parts.next().unwrap().parse().unwrap();
+    return (x, y)
+}
+
 fn main() -> std::io::Result<()>
 {
     //laczenie z serwerem
@@ -39,17 +47,31 @@ fn main() -> std::io::Result<()>
         let line = line?; //operator propagacji bledow
         if let Some(first_word) = line.split_whitespace().next() //pobranie pierwszego slowa z linii
         {
-            let message = match first_word
+            let message = match first_word 
             {
-                "move" => {
-                    let from = (0, 0);
-                    let to = (1, 1);
+                "move" => 
+                {
+                    let args: Vec<&str> = line.split_whitespace().collect(); //poprawny format ruchu to "move x,y a,b"
+                    if args.len() == 3
+                    {
+                        let from = parse_coords(args[1]);
+                        let to = parse_coords(args[2]);
+                    
 
                     builder::MessageBuilder::new()
                         .kind("move")
                         .from(from)
                         .to(to)
                         .build()
+                    } 
+                    else 
+                    {
+                        builder::MessageBuilder::new()
+                            .kind("error")
+                            .error_code(2)
+                            .error_message("Invalid number of arguments")
+                            .build()
+                    }   
                 }
                 _ => {
                     builder::MessageBuilder::new()
