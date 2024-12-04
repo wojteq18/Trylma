@@ -1,4 +1,4 @@
-use super::traits::Message;
+use super::message::message;
 
 pub struct move_message
 {
@@ -6,7 +6,7 @@ pub struct move_message
     pub to: (u8, u8),
 }
 
-impl Message for move_message
+impl message for move_message
 {
     fn get_content(&self) -> String
     {

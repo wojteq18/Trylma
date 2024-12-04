@@ -2,6 +2,10 @@ use std::io::{BufReader, BufRead, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
 use std::thread;
+mod Message;
+use Message::move_message;
+use Message::error_message;
+use Message::builder;
 
 fn main() -> std::io::Result<()>
 {
@@ -33,10 +37,29 @@ fn main() -> std::io::Result<()>
     for line in stdin.lock().lines()
     {
         let line = line?; //operator propagacji bledow
-        if(line == "exit")
+        if let Some(first_word) = line.split_whitespace().next() //pobranie pierwszego slowa z linii
         {
-            println!("Zamykanie polaczenia");
-            break;
+            let message = match first_word
+            {
+                "move" => {
+                    let from = (0, 0);
+                    let to = (1, 1);
+
+                    builder::MessageBuilder::new()
+                        .kind("move")
+                        .from(from)
+                        .to(to)
+                        .build()
+                }
+                _ => {
+                    builder::MessageBuilder::new()
+                        .kind("error")
+                        .error_code(1)
+                        .error_message("Unknown command")
+                        .build()
+                }
+            };
+            println!("Wysylanie: {}", message.get_content());
         }
         stream.write_all(line.as_bytes());
         stream.write_all(b"\n")?; //znak nowej lini, wyamagny przez serwer

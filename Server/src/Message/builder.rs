@@ -1,6 +1,6 @@
-use super::error_message::ErrorMessage;
-use super::move_message::MoveMessage;
-use super::traits::Message;
+use super::error_message::error_message;
+use super::move_message::move_message;
+use super::message::message;
 
 pub struct MessageBuilder
 {
@@ -55,16 +55,16 @@ impl MessageBuilder
         return self
     }
 
-    pub fn build(self) -> Box<dyn Message> //zwraca wartość Box, przechowującą dynamicznie alokowaną implementacje traitu message
+    pub fn build(self) -> Box<dyn message> //zwraca wartość Box, przechowującą dynamicznie alokowaną implementacje traitu message
     {
         match self.kind.as_deref() //as_deref() zwraca Option<&str> zamiast Option<String>
         {
-            Some("error") => Box::new(ErrorMessage
+            Some("error") => Box::new(error_message
             {
                 code: self.error_code.expect("Brak kodu bledu"),
                 message: self.error_message.expect("Brak opisu bledu"),
             }),
-            Some("move") => Box::new(MoveMessage
+            Some("move") => Box::new(move_message
             {
                 from: self.from.expect("Brak pola from"),
                 to: self.to.expect("Brak pola to"),

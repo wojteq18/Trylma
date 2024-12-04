@@ -1,12 +1,12 @@
-use super::traits::Message;
+use super::message::message;
 
 pub struct error_message
 {
-    pub code: u16;
-    pub message: String;
+    pub code: u16,
+    pub message: String,
 }
 
-impl Message for error_message
+impl message for error_message
 {
     fn get_content(&self) -> String
     {
