@@ -1,6 +1,6 @@
 use std::io::{BufReader, BufRead, Write};
-use std::net::{TcpListener, TcpStream};
-use std::sync::{Arc, Mutex};
+use std::net::{TcpStream};
+use std::process::{Command, Stdio};
 use std::thread;
 mod Message;
 use Message::move_message;
@@ -20,6 +20,16 @@ fn main() -> std::io::Result<()>
     //laczenie z serwerem
     let mut stream = TcpStream::connect("127.0.0.1:9999")?;
     println!("Polaczono z serwerem");
+
+    //uruchom proces javy
+    /*let mut java_process = Command::new("java")
+    .arg("-cp")
+    .arg(".")
+    .arg("com.example.GameLogic") // Ścieżka do klasy Javy z logiką gry
+    .stdin(Stdio::piped())
+    .stdout(Stdio::piped())
+    .spawn()
+    .expect("Nie udało się uruchomić logiki gry w Javie.");*/
 
     //odbieranie wiadomosci od serwera
     let mut stream_clone = stream.try_clone()?; //tworzenie klonu strumienia, by odbierac wiadomosci od serwera
