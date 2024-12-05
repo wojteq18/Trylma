@@ -3,58 +3,88 @@ use std::net::{TcpListener, TcpStream}; //protokol TCP
 use std::sync::{Arc, Mutex};
 use std::thread;
 
-fn handle_client(stream: TcpStream, clients: Arc<Mutex<Vec<TcpStream>>>) //Arc - pozwala na wspoldzielenie listy miedzy wieloma watkami,
-//Mutex - zapewnia bezpieczny dostep do listy klientow z roznych watkow, zapobiegajac konfliktom
-{
-    let mut reader = BufReader::new(&stream); //umozliwia latwiejsze i bardziej wydajne odczytywanie danych
-    let mut buffer = String::new(); //zmienna do przechowywania pojedynczej wiadomosci od klienta
+fn handle_client(
+    mut stream: TcpStream,
+    clients: Arc<Mutex<Vec<TcpStream>>>,
+    current_player: Arc<Mutex<usize>>,
+) {
+    let reader_stream = stream.try_clone().expect("Błąd klonowania strumienia");
+    let mut writer_stream = stream;
+    let peer_addr = writer_stream
+        .peer_addr()
+        .expect("Nie można uzyskać adresu IP klienta");
 
-    loop
-    {
+    let mut reader = BufReader::new(reader_stream); // Umożliwia łatwiejsze i bardziej wydajne odczytywanie danych
+    let mut buffer = String::new(); // Zmienna do przechowywania pojedynczej wiadomości od klienta
+
+    loop {
         buffer.clear();
-        match reader.read_line(&mut buffer)
-        {
-            Ok(0) => 
-            {
-                //klient zamknal polaczenie
-                println!("Klient rozlaczyl sie: {}", stream.peer_addr().unwrap());
+        match reader.read_line(&mut buffer) {
+            Ok(0) => {
+                // Klient zamknął połączenie
+                println!("Klient rozłączył się: {}", peer_addr);
                 break;
             }
 
-            Ok(_) =>
-            {
-                //odczytano wiadomosc od klienta
-                println!("Otrzymano wiadomosc: {}", buffer.trim()); //jezeli odczyt zakonczyl sie sukcesem, wiadomosc jest wypisywana w konsoli
-                let mut client_guard = clients.lock().unwrap(); //uzyskuje dostep do listy klientow (zabezpieczonej mutexem)
-                //lock() blokuje dostep do tej listy dla innych watkow, by uniknac konfliktow
-                for client in client_guard.iter_mut()
+            Ok(_) => {
+                let mut clients_guard = clients.lock().unwrap();
+                let player_index = clients_guard
+                    .iter()
+                    .position(|c| c.peer_addr().unwrap() == peer_addr)
+                    .unwrap();
+
                 {
-                    if client.peer_addr().unwrap() != stream.peer_addr().unwrap() //wiadomosc wysylana do kazdego klienta z wyjatkiem nadawcy (adresy ip sa porownywane)
-                    {
-                        //przekaz wiadomosc innym klientom
-                        writeln!(client, "{}", buffer.trim()).unwrap_or_else(|e|
-                        {
-                            println!("Blad podczas wysylania wiadomosci: {}", e);
-                        });
-                        client.flush().unwrap_or_else(|e| //flush wymusza natychmiastoew wyslanie wiadomosci przez siec
-                        {
-                            println!("Blad podczas czyszczenia bufora: {}", e);
-                        });
+                    let mut current_player_guard = current_player.lock().unwrap();
+                    if player_index != *current_player_guard {
+                        writeln!(
+                            writer_stream,
+                            "Nie twoja kolej, aktualny gracz: {}",
+                            *current_player_guard + 1
+                        )
+                        .unwrap();
+                        continue;
                     }
                 }
+
+                println!("Gracz {}: {}", player_index + 1, buffer.trim());
+                let command = buffer.trim();
+
+                let response = if command.starts_with("move") {
+                    "Ok, ruch wykonany"
+                } else {
+                    "Niepoprawna komenda"
+                };
+                writeln!(writer_stream, "{}", response).unwrap();
+
+                if response.starts_with("Ok") {
+                    for client in clients_guard.iter_mut() {
+                        writeln!(
+                            client,
+                            "Gracz {} wykonał ruch: {}",
+                            player_index + 1,
+                            buffer.trim()
+                        )
+                        .unwrap();
+                    }
+                    // Przejdź do następnego gracza
+                    let mut current_player_guard = current_player.lock().unwrap();
+                    *current_player_guard = (*current_player_guard + 1) % clients_guard.len();
+                }
             }
+
             Err(e) => {
-                println!("Blad odczytu od klienta: {}", e);
+                println!("Błąd odczytu od klienta: {}", e);
                 break;
             }
         }
     }
 
-    //po zakonczeniu polaczenia, klient jest usuwany z listy
+    // Po zakończeniu połączenia, klient jest usuwany z listy
     let mut clients_guard = clients.lock().unwrap();
-    clients_guard.retain(|c| c.peer_addr().unwrap() != stream.peer_addr().unwrap());
-    println!("Klient usuniety");
+    clients_guard.retain(|c| c.peer_addr().unwrap() != peer_addr);
+    println!("Klient usunięty: {}", peer_addr);
 }
+
 
 
 fn main() -> std::io::Result<()>
@@ -64,22 +94,34 @@ fn main() -> std::io::Result<()>
 
     //wspoldzielona lista klientow
     let clients = Arc::new(Mutex::new(Vec::new())); //Arc pozwala na wspoldzielenie listy klientow miedzy wieloma watkami
+    let current_player = Arc::new(Mutex::new(0));
 
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
                 println!("Nowe połączenie: {}", stream.peer_addr().unwrap());
                 let clients = Arc::clone(&clients); // kopia referencji do listy klientów
+                let current_player = Arc::clone(&current_player);
     
                 // Dodaj klienta do listy
                 {
                     let mut clients_guard = clients.lock().unwrap();
                     clients_guard.push(stream.try_clone().unwrap()); // tworzy kopię strumienia
+                    let num_clients = clients_guard.len();
+
+                    if num_clients == 2 || num_clients == 3 || num_clients == 4 || num_clients == 6
+                    {
+                        println!("Liczba graczy odpowiednia {}", num_clients);
+                    }
+                    else
+                    {
+                        println!("Liczba graczy nieodpowiednia: {}, powinna wynosić 2 lub 3 lub 4 lub 6", num_clients);
+                    }
                 }
     
                 // Uruchom nowy wątek do obsługi klienta
                 thread::spawn(move || {
-                    handle_client(stream, clients); // obsługa każdego klienta w osobnym wątku
+                    handle_client(stream, clients, current_player); // obsługa każdego klienta w osobnym wątku
                 });
             }
             Err(e) => {
