@@ -82,7 +82,21 @@ fn handle_client(
                 if java_response.trim().starts_with("ok") {
                     // Przejdź do następnego gracza, jeśli odpowiedź Javy jest "ok"
                     let mut current_player_guard = current_player.lock().unwrap();
+                    let next_player = (*current_player_guard + 1) % clients.lock().unwrap().len();
                     *current_player_guard = (*current_player_guard + 1) % clients.lock().unwrap().len();
+
+                    //wyslij informacje do kolejnego klienta, ze jego kolej
+                    let clients_guard = clients.lock().unwrap();
+                    if let Some(next_client) = clients_guard.get(next_player) 
+                    {
+                        let mut next_writer = next_client.try_clone().expect("Błąd klonowania TcpStream");
+                        writeln!(
+                            next_writer,
+                                "Twój ruch! Gracz {} zakończył swoją turę.",
+                                player_index + 1
+                            )
+                            .expect("Błąd wysyłania powiadomienia do następnego gracza");
+                    }
                 }
             }
 
