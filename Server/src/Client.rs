@@ -21,16 +21,6 @@ fn main() -> std::io::Result<()>
     let mut stream = TcpStream::connect("127.0.0.1:9999")?;
     println!("Polaczono z serwerem");
 
-    //uruchom proces javy
-    /*let mut java_process = Command::new("java")
-    .arg("-cp")
-    .arg(".")
-    .arg("com.example.GameLogic") // Ścieżka do klasy Javy z logiką gry
-    .stdin(Stdio::piped())
-    .stdout(Stdio::piped())
-    .spawn()
-    .expect("Nie udało się uruchomić logiki gry w Javie.");*/
-
     //odbieranie wiadomosci od serwera
     let mut stream_clone = stream.try_clone()?; //tworzenie klonu strumienia, by odbierac wiadomosci od serwera
     thread::spawn(move || 
