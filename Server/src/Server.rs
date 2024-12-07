@@ -1,12 +1,15 @@
 use std::io::{BufRead, BufReader, Write};
-use std::net::{TcpListener, TcpStream}; //protokol TCP
+use std::net::{TcpListener, TcpStream}; // protokół TCP
 use std::sync::{Arc, Mutex};
 use std::thread;
+use std::process::{Command, Stdio};
 
 fn handle_client(
     mut stream: TcpStream,
     clients: Arc<Mutex<Vec<TcpStream>>>,
     current_player: Arc<Mutex<usize>>,
+    java_stdin: Arc<Mutex<std::process::ChildStdin>>,
+    java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>,
 ) {
     let reader_stream = stream.try_clone().expect("Błąd klonowania strumienia");
     let mut writer_stream = stream;
@@ -27,11 +30,16 @@ fn handle_client(
             }
 
             Ok(_) => {
-                let mut clients_guard = clients.lock().unwrap();
-                let player_index = clients_guard
-                    .iter()
-                    .position(|c| c.peer_addr().unwrap() == peer_addr)
-                    .unwrap();
+                let message = buffer.trim();
+
+                // Sprawdź, czy to jest tura gracza
+                let player_index = {
+                    let clients_guard = clients.lock().unwrap();
+                    clients_guard
+                        .iter()
+                        .position(|c| c.peer_addr().unwrap() == peer_addr)
+                        .unwrap()
+                };
 
                 {
                     let mut current_player_guard = current_player.lock().unwrap();
@@ -46,29 +54,34 @@ fn handle_client(
                     }
                 }
 
-                println!("Gracz {}: {}", player_index + 1, buffer.trim());
-                let command = buffer.trim();
+                println!("Gracz {}: {}", player_index + 1, message);
 
-                let response = if command.starts_with("move") {
-                    "Ok, ruch wykonany"
-                } else {
-                    "Niepoprawna komenda"
+                // Prześlij wiadomość do procesu Javy
+                {
+                    let mut java_stdin_guard = java_stdin.lock().unwrap();
+                    writeln!(java_stdin_guard, "{}", message)
+                        .expect("Nie udało się wysłać do procesu Javy");
+                }
+
+                // Odbierz odpowiedź z Javy
+                let java_response = {
+                    let mut java_reader_guard = java_reader.lock().unwrap();
+                    let mut response = String::new();
+                    java_reader_guard
+                        .read_line(&mut response)
+                        .expect("Błąd odczytu z procesu Javy");
+                    response 
                 };
-                writeln!(writer_stream, "{}", response).unwrap();
 
-                if response.starts_with("Ok") {
-                    for client in clients_guard.iter_mut() {
-                        writeln!(
-                            client,
-                            "Gracz {} wykonał ruch: {}",
-                            player_index + 1,
-                            buffer.trim()
-                        )
-                        .unwrap();
-                    }
-                    // Przejdź do następnego gracza
+                println!("Logika Javy: {}", java_response.trim());
+
+                // Wyślij odpowiedź do klienta
+                writeln!(writer_stream, "{}", java_response.trim()).unwrap();
+
+                if java_response.trim().starts_with("ok") {
+                    // Przejdź do następnego gracza, jeśli odpowiedź Javy jest "ok"
                     let mut current_player_guard = current_player.lock().unwrap();
-                    *current_player_guard = (*current_player_guard + 1) % clients_guard.len();
+                    *current_player_guard = (*current_player_guard + 1) % clients.lock().unwrap().len();
                 }
             }
 
@@ -85,49 +98,56 @@ fn handle_client(
     println!("Klient usunięty: {}", peer_addr);
 }
 
-
-
-fn main() -> std::io::Result<()>
-{
-    let listener = TcpListener::bind("127.0.0.1:9999")?; //nasluchuje na porcie 9999, znak ? sprawdza czy zakonczono powodzeniem
+fn main() -> std::io::Result<()> {
+    let listener = TcpListener::bind("127.0.0.1:9999")?; // nasłuchuje na porcie 9999
     println!("Serwer uruchomiony na 127.0.0.1:9999");
 
-    //wspoldzielona lista klientow
-    let clients = Arc::new(Mutex::new(Vec::new())); //Arc pozwala na wspoldzielenie listy klientow miedzy wieloma watkami
+    // Uruchom proces Java
+    let mut java_process = Command::new("java")
+        .arg("-cp")
+        .arg("/home/vostok/codes/Trylma/src/main/java") // Ścieżka do katalogu bazowego dla pakietu
+        .arg("com.example.GameLogic") // Klasa z przestrzenią nazw
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .spawn()
+        .expect("Nie udało się uruchomić logiki gry w Javie.");
+
+    let java_stdin = Arc::new(Mutex::new(
+        java_process.stdin.take().expect("Błąd dostępu do stdin Javy"),
+    ));
+    let java_reader = Arc::new(Mutex::new(BufReader::new(
+        java_process.stdout.take().expect("Błąd dostępu do stdout Javy"),
+    )));
+
+    // Współdzielona lista klientów
+    let clients = Arc::new(Mutex::new(Vec::new()));
     let current_player = Arc::new(Mutex::new(0));
 
     for stream in listener.incoming() {
         match stream {
             Ok(stream) => {
                 println!("Nowe połączenie: {}", stream.peer_addr().unwrap());
-                let clients = Arc::clone(&clients); // kopia referencji do listy klientów
+                let clients = Arc::clone(&clients);
                 let current_player = Arc::clone(&current_player);
-    
+                let java_stdin = Arc::clone(&java_stdin);
+                let java_reader = Arc::clone(&java_reader);
+
                 // Dodaj klienta do listy
                 {
                     let mut clients_guard = clients.lock().unwrap();
-                    clients_guard.push(stream.try_clone().unwrap()); // tworzy kopię strumienia
-                    let num_clients = clients_guard.len();
-
-                    if num_clients == 2 || num_clients == 3 || num_clients == 4 || num_clients == 6
-                    {
-                        println!("Liczba graczy odpowiednia {}", num_clients);
-                    }
-                    else
-                    {
-                        println!("Liczba graczy nieodpowiednia: {}, powinna wynosić 2 lub 3 lub 4 lub 6", num_clients);
-                    }
+                    clients_guard.push(stream.try_clone().unwrap());
                 }
-    
+
                 // Uruchom nowy wątek do obsługi klienta
                 thread::spawn(move || {
-                    handle_client(stream, clients, current_player); // obsługa każdego klienta w osobnym wątku
+                    handle_client(stream, clients, current_player, java_stdin, java_reader);
                 });
             }
             Err(e) => {
                 println!("Błąd połączenia: {}", e);
             }
         }
-    }    
-    Ok(()) //program zakonczyl sie pomyslnie
+    }
+
+    Ok(())
 }
