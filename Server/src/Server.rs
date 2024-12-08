@@ -79,24 +79,23 @@ fn handle_client(
                 // Wyślij odpowiedź do klienta
                 writeln!(writer_stream, "{}", java_response.trim()).unwrap();
 
-                if java_response.trim().starts_with("ok") {
-                    // Przejdź do następnego gracza, jeśli odpowiedź Javy jest "ok"
+                if java_response.trim() == "ok" {
+                    // Przejdź do następnego gracza
                     let mut current_player_guard = current_player.lock().unwrap();
-                    let next_player = (*current_player_guard + 1) % clients.lock().unwrap().len();
                     *current_player_guard = (*current_player_guard + 1) % clients.lock().unwrap().len();
-                    //wyslij informacje do kolejnego klienta, ze jego kolej
+                
+                    // Wyślij powiadomienie do następnego gracza
                     let clients_guard = clients.lock().unwrap();
-                    if let Some(next_client) = clients_guard.get(next_player) 
-                    {
+                    if let Some(next_client) = clients_guard.get(*current_player_guard) {
                         let mut next_writer = next_client.try_clone().expect("Błąd klonowania TcpStream");
-                        writeln!(
-                            next_writer,
-                                "Twój ruch! Gracz {} zakończył swoją turę.",
-                                player_index + 1
-                            )
-                            .expect("Błąd wysyłania powiadomienia do następnego gracza");
+                        writeln!(next_writer, "Twoja kolej!").expect("Błąd wysyłania powiadomienia do następnego gracza");
                     }
                 }
+                else if java_response.trim() == "error"
+                {
+                    writeln!(writer_stream, "Błąd: {}", java_response.trim()).unwrap();
+                }
+                
             }
 
             Err(e) => {
@@ -210,8 +209,12 @@ fn main() -> std::io::Result<()> {
         io::stdin().read_line(&mut max_players).expect("Błąd odczytu");
         max_players.trim().parse().expect("Błąd parsowania")
     };
-
     let listener = initialize_server("127.0.0.1:9999")?;
+
+    let clients = accept_clients(&listener, max_players);
+
+
+    //let listener = initialize_server("127.0.0.1:9999")?;
 
     let (java_stdin, java_reader) = setup_java_process(
         "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
@@ -223,7 +226,7 @@ fn main() -> std::io::Result<()> {
     let initial_response = read_from_java_process(&java_reader);
     println!("Proces Java: {}", initial_response);
 
-    let clients = accept_clients(&listener, max_players);
+    //let clients = accept_clients(&listener, max_players);
 
     let current_player = Arc::new(Mutex::new(0));
 
