@@ -22,6 +22,7 @@ fn handle_client(
     let mut buffer = String::new(); // Zmienna do przechowywania pojedynczej wiadomości od klienta
 
     loop {
+        //println!("hejla");
         buffer.clear();
         match reader.read_line(&mut buffer) {
             Ok(0) => {
@@ -90,11 +91,14 @@ fn handle_client(
                         let mut next_writer = next_client.try_clone().expect("Błąd klonowania TcpStream");
                         writeln!(next_writer, "Twoja kolej!").expect("Błąd wysyłania powiadomienia do następnego gracza");
                     }
+                } else if java_response.trim() == "error" {
+                    // Pozostań na tym samym graczu i poinformuj o błędzie
+                    writeln!(writer_stream, "Błąd: Powtórz ruch").unwrap();
+                } else {
+                    // W przypadku innych odpowiedzi - zwróć komunikat
+                    writeln!(writer_stream, "Nieznana odpowiedź z Javy: {}", java_response.trim()).unwrap();
                 }
-                else if java_response.trim() == "error"
-                {
-                    writeln!(writer_stream, "Błąd: {}", java_response.trim()).unwrap();
-                }
+                //println!("Pies");
                 
             }
 

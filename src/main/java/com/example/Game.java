@@ -16,33 +16,37 @@ public class Game {
         int queue = 0;
 
         while (manager.activePlayers(players) > 1) {
+            // System.out.println("ok");
             try {
+                // System.out.println("ok");
                 if (players[queue].getState() == State.ACTIVE) {
+                    //System.out.println("ok");
                     // Tworzenie reprezentacji stanu planszy
                     List<Pawn> get = players[queue].getpawns();
-                    StringBuilder boardState = new StringBuilder("Pionki: ");
-                    for (Pawn pawn : get) {
+                    //StringBuilder boardState = new StringBuilder("Pionki: ");
+                    /*for (Pawn pawn : get) {
                         boardState.append(pawn.getX())
                                 .append(" ")
                                 .append(pawn.getY())
                                 .append(" ")
                                 .append(pawn.getColor())
                                 .append(", ");
-                    }
+                    }*/
                     // Usuwamy ostatni przecinek i spację
-                    if (boardState.length() > 8) {
-                        boardState.setLength(boardState.length() - 2);
-                    }
+                    //if (boardState.length() > 8) {
+                        //boardState.setLength(boardState.length() - 2);
+                    //}
                     // Wyślij cały stan do serwera
-                    System.out.println(boardState.toString());
+                    //System.out.println(boardState.toString());
 
                     // Oczekiwanie na ruch gracza
-                    System.out.println("Czekam na ruch gracza: " + (queue + 1));
-                    command = scanner.nextLine();
-                    Scanner commandScanner = new Scanner(command);
-
+                    System.out.println("");
+                   
+                    command = scanner.nextLine();                    
+                    Scanner commandScanner = new Scanner(command);                    
                     action = commandScanner.next();
-                    if (action.equals("move") && commandScanner.hasNextInt()) {
+                    
+                    if (action.equals("move") && commandScanner.hasNextInt()) {                        
                         x = commandScanner.nextInt();
                         y = commandScanner.nextInt();
                         newX = commandScanner.nextInt();
@@ -51,15 +55,28 @@ public class Game {
                         try {
                             players[queue].move(x, y, newX, newY);
                             System.out.println("ok"); // Wyślij odpowiedź do serwera
+                            System.out.flush();
+                            // Przejdź do następnego gracza
+                            queue = (queue + 1) % numberOfPlayers;
                         } catch (Exception e) {
                             System.err.println("Błąd podczas wykonywania ruchu: " + e.getMessage());
                             e.printStackTrace();
                             System.out.println("error"); // Wyślij błąd do serwera
+                            System.out.flush();
                         }
                     } else if (action.equals("wait")) {
+                        //System.out.println("2");
+                        //System.exit(0); // Kończy program
                         System.out.println("ok"); // Wyślij odpowiedź do serwera
+                        System.out.flush();
+                        // Przejdź do następnego gracza
+                        queue = (queue + 1) % numberOfPlayers;
+                        
                     } else {
                         System.out.println("error"); // Błędne polecenie
+                        System.out.flush();
+                        //System.out.println("3");
+                        //System.exit(0); // Kończy program
                     }
                     commandScanner.close();
 
@@ -71,19 +88,23 @@ public class Game {
                         e.printStackTrace();
                     }
                 }
+                System.out.println("ok");
             } catch (Exception e) {
+                System.out.println("ok");
                 System.err.println("Błąd w obsłudze tury gracza " + (queue + 1) + ": " + e.getMessage());
                 e.printStackTrace();
                 System.out.println("error");
             }
 
-            // Zmień kolejkę na następnego gracza
-            queue = (queue + 1) % numberOfPlayers;
+            System.out.println("ok");
+
+            // Wyświetlenie informacji o następnym graczu po zmianie kolejki
+            //System.out.println("Kolej gracza: " + (queue + 1));
         }
 
         // Zakończenie gry
         try {
-            System.out.println("Game over!");
+            //System.out.println("Game over!");
         } catch (Exception e) {
             System.err.println("Błąd podczas zakończenia gry: " + e.getMessage());
             e.printStackTrace();
