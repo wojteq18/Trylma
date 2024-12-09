@@ -14,6 +14,8 @@ public class Game {
 
         Scanner scanner = new Scanner(System.in); // Odbieraj dane z serwera
         int queue = 0;
+        System.out.println("");
+
 
         while (manager.activePlayers(players) > 1) {
             // System.out.println("ok");
@@ -40,24 +42,32 @@ public class Game {
                     //System.out.println(boardState.toString());
 
                     // Oczekiwanie na ruch gracza
-                    System.out.println("");
                    
                     command = scanner.nextLine();                    
                     Scanner commandScanner = new Scanner(command);                    
                     action = commandScanner.next();
                     
-                    if (action.equals("move") && commandScanner.hasNextInt()) {                        
+                    if (action.equals("move") && commandScanner.hasNextInt()) {       
+                        System.out.println("obiad");
+                        System.out.flush();                 
                         x = commandScanner.nextInt();
                         y = commandScanner.nextInt();
                         newX = commandScanner.nextInt();
                         newY = commandScanner.nextInt();
                         // Wykonaj ruch
                         try {
-                            players[queue].move(x, y, newX, newY);
-                            System.out.println("ok"); // Wyślij odpowiedź do serwera
-                            System.out.flush();
-                            // Przejdź do następnego gracza
-                            queue = (queue + 1) % numberOfPlayers;
+                            if(players[queue].move(x, y, newX, newY) == true)
+                            {
+                                System.out.println("ok"); // Wyślij odpowiedź do serwera
+                                System.out.flush();
+                                // Przejdź do następnego gracza
+                                queue = (queue + 1) % numberOfPlayers;
+                            }
+                            else
+                            {
+                                System.out.println("error");
+                                System.out.flush();
+                            }
                         } catch (Exception e) {
                             System.err.println("Błąd podczas wykonywania ruchu: " + e.getMessage());
                             e.printStackTrace();
@@ -100,6 +110,7 @@ public class Game {
 
             // Wyświetlenie informacji o następnym graczu po zmianie kolejki
             //System.out.println("Kolej gracza: " + (queue + 1));
+            //scanner.close();
         }
 
         // Zakończenie gry

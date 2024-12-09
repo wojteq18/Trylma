@@ -22,26 +22,29 @@ fn handle_client(
     let mut buffer = String::new(); // Zmienna do przechowywania pojedynczej wiadomości od klienta
 
     loop {
-        //println!("hejla");
         buffer.clear();
+
         match reader.read_line(&mut buffer) {
             Ok(0) => {
                 // Klient zamknął połączenie
                 println!("Klient rozłączył się: {}", peer_addr);
+                println!("Hejla0");
                 break;
             }
 
             Ok(_) => {
+                println!("Hejla_");
                 let message = buffer.trim();
 
                 // Sprawdź, czy to jest tura gracza
-                let player_index = {
+                let player_index;
+                {
                     let clients_guard = clients.lock().unwrap();
-                    clients_guard
+                    player_index = clients_guard
                         .iter()
                         .position(|c| c.peer_addr().unwrap() == peer_addr)
-                        .unwrap()
-                };
+                        .unwrap();
+                }
 
                 {
                     let mut current_player_guard = current_player.lock().unwrap();
@@ -72,46 +75,53 @@ fn handle_client(
                     java_reader_guard
                         .read_line(&mut response)
                         .expect("Błąd odczytu z procesu Javy");
-                    response 
+                    response
                 };
 
-                println!("Logika Javy: {}", java_response.trim());
-
-                // Wyślij odpowiedź do klienta
                 writeln!(writer_stream, "{}", java_response.trim()).unwrap();
+                let first_word = java_response.trim().split_whitespace().next().unwrap_or("");
 
-                if java_response.trim() == "ok" {
-                    // Przejdź do następnego gracza
+                if first_word == "ok" || java_response.trim() == "Ok" {
                     let mut current_player_guard = current_player.lock().unwrap();
-                    *current_player_guard = (*current_player_guard + 1) % clients.lock().unwrap().len();
-                
-                    // Wyślij powiadomienie do następnego gracza
-                    let clients_guard = clients.lock().unwrap();
-                    if let Some(next_client) = clients_guard.get(*current_player_guard) {
-                        let mut next_writer = next_client.try_clone().expect("Błąd klonowania TcpStream");
-                        writeln!(next_writer, "Twoja kolej!").expect("Błąd wysyłania powiadomienia do następnego gracza");
-                    }
-                } else if java_response.trim() == "error" {
-                    // Pozostań na tym samym graczu i poinformuj o błędzie
-                    writeln!(writer_stream, "Błąd: Powtórz ruch").unwrap();
-                } else {
-                    // W przypadku innych odpowiedzi - zwróć komunikat
-                    writeln!(writer_stream, "Nieznana odpowiedź z Javy: {}", java_response.trim()).unwrap();
-                }
-                //println!("Pies");
-                
-            }
+                    {
+                        let clients_guard = clients.lock().unwrap();
+                        *current_player_guard = (*current_player_guard + 1) % clients_guard.len();
 
+                        // Wyślij powiadomienie do następnego gracza
+                        if let Some(next_client) = clients_guard.get(*current_player_guard) {
+                            let mut next_writer = next_client
+                                .try_clone()
+                                .expect("Błąd klonowania TcpStream");
+                            writeln!(next_writer, "Twoja kolej!")
+                                .expect("Błąd wysyłania powiadomienia do następnego gracza");
+                        }
+                    }
+                } else if first_word == "error" || java_response.trim() == "Error" {
+                    writeln!(writer_stream, "Błąd: Powtórz ruch").unwrap();
+                } else if first_word == "" {
+                    continue;
+                } else {
+                    writeln!(
+                        writer_stream,
+                        "Nieznana odpowiedź z Javy: {}",
+                        java_response.trim()
+                    )
+                    .unwrap();
+                }
+            }
             Err(e) => {
                 println!("Błąd odczytu od klienta: {}", e);
                 break;
             }
         }
+        println!("hejlakoniec");
     }
 
     // Po zakończeniu połączenia, klient jest usuwany z listy
-    let mut clients_guard = clients.lock().unwrap();
-    clients_guard.retain(|c| c.peer_addr().unwrap() != peer_addr);
+    {
+        let mut clients_guard = clients.lock().unwrap();
+        clients_guard.retain(|c| c.peer_addr().unwrap() != peer_addr);
+    }
     println!("Klient usunięty: {}", peer_addr);
 }
 
@@ -121,7 +131,13 @@ fn initialize_server(address: &str) -> std::io::Result<TcpListener> {
     Ok(listener)
 }
 
-fn setup_java_process(class_path: &str, main_class: &str) -> (Arc<Mutex<std::process::ChildStdin>>, Arc<Mutex<BufReader<std::process::ChildStdout>>>) {
+fn setup_java_process(
+    class_path: &str,
+    main_class: &str,
+) -> (
+    Arc<Mutex<std::process::ChildStdin>>,
+    Arc<Mutex<BufReader<std::process::ChildStdout>>>,
+) {
     let mut java_process = Command::new("java")
         .arg("-cp")
         .arg(class_path)
@@ -167,15 +183,6 @@ fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::Chil
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
 }
 
-fn read_from_java_process(java_reader: &Arc<Mutex<BufReader<std::process::ChildStdout>>>) -> String {
-    let mut java_reader_guard = java_reader.lock().unwrap();
-    let mut response = String::new();
-    java_reader_guard
-        .read_line(&mut response)
-        .expect("Błąd odczytu z procesu Javy");
-    response.trim().to_string()
-}
-
 fn start_game(
     clients: Vec<TcpStream>,
     current_player: Arc<Mutex<usize>>,
@@ -217,20 +224,12 @@ fn main() -> std::io::Result<()> {
 
     let clients = accept_clients(&listener, max_players);
 
-
-    //let listener = initialize_server("127.0.0.1:9999")?;
-
     let (java_stdin, java_reader) = setup_java_process(
         "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
         "com.example.Main", // Główna klasa Java
     );
 
     initialize_game(max_players, &java_stdin);
-
-    let initial_response = read_from_java_process(&java_reader);
-    println!("Proces Java: {}", initial_response);
-
-    //let clients = accept_clients(&listener, max_players);
 
     let current_player = Arc::new(Mutex::new(0));
 

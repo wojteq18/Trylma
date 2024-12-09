@@ -93,7 +93,7 @@ public class Player{
             } //else return false; //nie wykona sie, bo zawsze przed ta funkcja upewniamy się, czy dane pole istnieje
         } return false; //rowniez raczej sie nie wykona
     }
-    public void move (int x, int y, int newX, int newY){
+    public boolean move (int x, int y, int newX, int newY){        
         //boolean doneMove = false;
         //while(!doneMove){
             if(isPawnThere(x, y)){
@@ -116,11 +116,27 @@ public class Player{
                                 setSquareStatus(newX, newY, false);
                                 //doneMove = true;
                                 System.out.println("Ok, Move has been done!");
-                            } else System.err.println("Error, Forbidden move!");
-                        } else System.err.println("Error, Pawn is trying to escape from final area!");
-                    } else System.err.println("Error, Final square is not empty!");
-                } else System.err.println("Error, Final square does not exists!");
-            } else System.err.println("Error, There is no pawn there!");
+                                return true;
+                            } else {
+                                System.err.println("Error, Forbidden move!");
+                                return false;
+                            }
+                        } else {
+                            System.err.println("Error, Pawn is trying to escape from final area!");
+                            return false;
+                        }
+                    } else {
+                        System.err.println("Error, Final square is not empty!");
+                        return false;
+                    }
+                } else {
+                    System.err.println("Error, Final square does not exists!");
+                    return false;
+                }
+            } else {
+                System.err.println("Error, There is no pawn there!");
+                return false;
+            }
     
             /*
                     for (Move move : pawn.getMoves()){
@@ -128,7 +144,7 @@ public class Player{
                     }
             */
         //}
-        }
+    }
     
     public void multiMove(int x, int y){
         Pawn pawn = thisPawn(x, y);
