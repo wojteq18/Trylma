@@ -14,7 +14,7 @@ public class Game {
 
         Scanner scanner = new Scanner(System.in); // Odbieraj dane z serwera
         int queue = 0;
-        System.out.println("");
+        //System.out.println("");
 
 
         while (manager.activePlayers(players) > 1) {

@@ -72,12 +72,14 @@ fn handle_client(
                 let java_response = {
                     let mut java_reader_guard = java_reader.lock().unwrap();
                     let mut response = String::new();
+                    //println!("Hał, hał2");
                     java_reader_guard
                         .read_line(&mut response)
                         .expect("Błąd odczytu z procesu Javy");
                     response
+                    
                 };
-
+                println!("Teraz: {}", java_response);
                 writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                 let first_word = java_response.trim().split_whitespace().next().unwrap_or("");
 
