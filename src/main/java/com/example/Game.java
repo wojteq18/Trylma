@@ -46,10 +46,13 @@ public class Game {
                     command = scanner.nextLine();                    
                     Scanner commandScanner = new Scanner(command);                    
                     action = commandScanner.next();
+                    //System.out.println("Action: " + action);
+                    //System.out.flush();
+
                     
-                    if (action.equals("move") && commandScanner.hasNextInt()) {       
-                        System.out.println("obiad");
-                        System.out.flush();                 
+                    if (action.equals("move")) {       
+                        //System.out.println("obiad");
+                        //System.out.flush();                 
                         x = commandScanner.nextInt();
                         y = commandScanner.nextInt();
                         newX = commandScanner.nextInt();
@@ -98,15 +101,15 @@ public class Game {
                         e.printStackTrace();
                     }
                 }
-                System.out.println("ok");
+                //System.out.println("ok");
             } catch (Exception e) {
-                System.out.println("ok");
+                //System.out.println("ok");
                 System.err.println("Błąd w obsłudze tury gracza " + (queue + 1) + ": " + e.getMessage());
                 e.printStackTrace();
                 System.out.println("error");
             }
 
-            System.out.println("ok");
+            //System.out.println("ok");
 
             // Wyświetlenie informacji o następnym graczu po zmianie kolejki
             //System.out.println("Kolej gracza: " + (queue + 1));

@@ -6,7 +6,7 @@ use std::process::{Command, Stdio};
 use std::io;
 
 fn handle_client(
-    mut stream: TcpStream,
+    stream: TcpStream,
     clients: Arc<Mutex<Vec<TcpStream>>>,
     current_player: Arc<Mutex<usize>>,
     java_stdin: Arc<Mutex<std::process::ChildStdin>>,
@@ -47,7 +47,7 @@ fn handle_client(
                 }
 
                 {
-                    let mut current_player_guard = current_player.lock().unwrap();
+                    let current_player_guard = current_player.lock().unwrap();
                     if player_index != *current_player_guard {
                         writeln!(
                             writer_stream,

@@ -93,7 +93,7 @@ public class Player{
             } //else return false; //nie wykona sie, bo zawsze przed ta funkcja upewniamy się, czy dane pole istnieje
         } return false; //rowniez raczej sie nie wykona
     }
-    public boolean move (int x, int y, int newX, int newY){        
+    public boolean move (int x, int y, int newX, int newY){
         //boolean doneMove = false;
         //while(!doneMove){
             if(isPawnThere(x, y)){
@@ -115,7 +115,7 @@ public class Player{
                                 setSquareStatus(x, y, true);
                                 setSquareStatus(newX, newY, false);
                                 //doneMove = true;
-                                System.out.println("Ok, Move has been done!");
+                                //System.out.println("Ok, Move has been done!");
                                 return true;
                             } else {
                                 System.err.println("Error, Forbidden move!");
