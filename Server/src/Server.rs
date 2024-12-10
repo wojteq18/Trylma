@@ -5,7 +5,7 @@ use std::thread;
 use std::process::{Command, Stdio};
 use std::io;
 
-fn handle_client(
+fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje je do procesu javy, odbiera odpowiedz od javy, przekazuje ja do klienta
     stream: TcpStream,
     clients: Arc<Mutex<Vec<TcpStream>>>,
     current_player: Arc<Mutex<usize>>,
@@ -127,13 +127,13 @@ fn handle_client(
     println!("Klient usunięty: {}", peer_addr);
 }
 
-fn initialize_server(address: &str) -> std::io::Result<TcpListener> {
+fn initialize_server(address: &str) -> std::io::Result<TcpListener> { //inicjalizuje serwer na podanym adresie
     let listener = TcpListener::bind(address)?;
     println!("Serwer uruchomiony na {}", address);
     Ok(listener)
 }
 
-fn setup_java_process(
+fn setup_java_process( //uruchamia proces javy
     class_path: &str,
     main_class: &str,
 ) -> (
@@ -160,7 +160,7 @@ fn setup_java_process(
     (java_stdin, java_reader)
 }
 
-fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> {
+fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
     let mut clients = Vec::new();
     println!("Oczekiwanie na graczy...");
 
@@ -180,12 +180,12 @@ fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> 
     clients
 }
 
-fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>) {
+fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>) { //informuje proces java o liczbie graczy
     let mut java_stdin_guard = java_stdin.lock().unwrap();
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
 }
 
-fn start_game(
+fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy osobny watek dla klienta w ktorym dziala handle_client
     clients: Vec<TcpStream>,
     current_player: Arc<Mutex<usize>>,
     java_stdin: Arc<Mutex<std::process::ChildStdin>>,
@@ -209,7 +209,7 @@ fn start_game(
     }
 }
 
-fn run_server_loop() {
+fn run_server_loop() { //utrzymuje dzialanie serwera
     loop {
         thread::sleep(std::time::Duration::from_secs(1));
     }
