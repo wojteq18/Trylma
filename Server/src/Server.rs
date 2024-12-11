@@ -94,6 +94,8 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                             let mut next_writer = next_client
                                 .try_clone()
                                 .expect("Błąd klonowania TcpStream");
+                            writeln!(next_writer, "Gracz {}: {}", player_index + 1, message)
+                                .expect("Błąd wysyłania powiadomienia do następnego gracza");
                             writeln!(next_writer, "Twoja kolej!")
                                 .expect("Błąd wysyłania powiadomienia do następnego gracza");
                         }
