@@ -6,15 +6,15 @@ use std::process::{Command, Stdio};
 use std::io;
 
 fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje je do procesu javy, odbiera odpowiedz od javy, przekazuje ja do klienta
-    stream: TcpStream,
-    clients: Arc<Mutex<Vec<TcpStream>>>,
-    current_player: Arc<Mutex<usize>>,
-    java_stdin: Arc<Mutex<std::process::ChildStdin>>,
-    java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>,
+    stream: TcpStream, //reprezentuje polaczenie z jednym klientem, jest to gniazdo TCP
+    clients: Arc<Mutex<Vec<TcpStream>>>, //lista przechowujaca polaczenia z klientami
+    current_player: Arc<Mutex<usize>>, //indeks aktualnego gracza
+    java_stdin: Arc<Mutex<std::process::ChildStdin>>, //wspoldzielony strumien wejsciowy
+    java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>, //wspoldzielony obiekt do odczytu odpowiedzi od javy
 ) {
     let reader_stream = stream.try_clone().expect("Błąd klonowania strumienia");
     let mut writer_stream = stream;
-    let peer_addr = writer_stream
+    let peer_addr = writer_stream //adres IP klienta
         .peer_addr()
         .expect("Nie można uzyskać adresu IP klienta");
 
