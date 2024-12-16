@@ -93,7 +93,7 @@ public class Player{
             } //else return false; //nie wykona sie, bo zawsze przed ta funkcja upewniamy się, czy dane pole istnieje
         } return false; //rowniez raczej sie nie wykona
     }
-    public boolean move (int x, int y, int newX, int newY){
+    public int move (int x, int y, int newX, int newY){
         //boolean doneMove = false;
         //while(!doneMove){
             if(isPawnThere(x, y)){
@@ -116,26 +116,26 @@ public class Player{
                                 setSquareStatus(newX, newY, false);
                                 //doneMove = true;
                                 //System.out.println("Ok, Move has been done!");
-                                return true;
+                                return 0;
                             } else {
                                 System.err.println("Error, Forbidden move!");
-                                return false;
+                                return 1;
                             }
                         } else {
                             System.err.println("Error, Pawn is trying to escape from final area!");
-                            return false;
+                            return 2;
                         }
                     } else {
                         System.err.println("Error, Final square is not empty!");
-                        return false;
+                        return 3;
                     }
                 } else {
                     System.err.println("Error, Final square does not exists!");
-                    return false;
+                    return 4;
                 }
             } else {
                 System.err.println("Error, There is no pawn there!");
-                return false;
+                return 5;
             }
     
             /*

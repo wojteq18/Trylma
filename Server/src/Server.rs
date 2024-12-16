@@ -5,6 +5,12 @@ use std::thread;
 use std::process::{Command, Stdio};
 use std::io;
 
+mod Message;
+use crate::Message::message::message;
+use crate::Message::error_message::error_message;
+use crate::Message::move_message::move_message;
+use crate::Message::builder::MessageBuilder;
+
 fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje je do procesu javy, odbiera odpowiedz od javy, przekazuje ja do klienta
     stream: TcpStream, //reprezentuje polaczenie z jednym klientem, jest to gniazdo TCP
     clients: Arc<Mutex<Vec<TcpStream>>>, //lista przechowujaca polaczenia z klientami
@@ -102,15 +108,8 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     }
                 } else if first_word == "error" || java_response.trim() == "Error" {
                     writeln!(writer_stream, "Błąd: Powtórz ruch").unwrap();
-                } else if first_word == "" {
-                    continue;
                 } else {
-                    writeln!(
-                        writer_stream,
-                        "Nieznana odpowiedź z Javy: {}",
-                        java_response.trim()
-                    )
-                    .unwrap();
+                    continue;
                 }
             }
             Err(e) => {
@@ -159,7 +158,7 @@ fn setup_java_process( //uruchamia proces javy
         java_process.stdout.take().expect("Błąd dostępu do stdout Javy"),
     )));
 
-    (java_stdin, java_reader)
+    return (java_stdin, java_reader)
 }
 
 fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow

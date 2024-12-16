@@ -1,1 +1,1 @@
-/home/vostok/codes/Trylma/Server/target/debug/server: /home/vostok/codes/Trylma/Server/src/Server.rs
+/home/vostok/codes/Trylma/Server/target/debug/server: /home/vostok/codes/Trylma/Server/src/Message/builder.rs /home/vostok/codes/Trylma/Server/src/Message/error_message.rs /home/vostok/codes/Trylma/Server/src/Message/message.rs /home/vostok/codes/Trylma/Server/src/Message/mod.rs /home/vostok/codes/Trylma/Server/src/Message/move_message.rs /home/vostok/codes/Trylma/Server/src/Server.rs
