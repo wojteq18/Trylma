@@ -23,7 +23,7 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
 
     loop {
         buffer.clear();
-
+ 
         match reader.read_line(&mut buffer) {
             Ok(0) => {
                 // Klient zamknął połączenie
