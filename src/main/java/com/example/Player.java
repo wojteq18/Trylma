@@ -116,26 +116,21 @@ public class Player{
                                 setSquareStatus(newX, newY, false);
                                 //doneMove = true;
                                 //System.out.println("Ok, Move has been done!");
-                                return 0;
+                                return 0; //zwraca 0, gdy ruch jest legalny
                             } else {
-                                System.err.println("Error, Forbidden move!");
-                                return 1;
+                                return 1; //zwraca 1, gdy ruch jest zakazany (?)
                             }
                         } else {
-                            System.err.println("Error, Pawn is trying to escape from final area!");
-                            return 2;
+                            return 2; //zwraca 2, gdy probujemy uciec ze strefy finalnej
                         }
                     } else {
-                        System.err.println("Error, Final square is not empty!");
-                        return 3;
+                        return 3; //zwraca 3, gdy probujemy wejsc na zajete pole
                     }
                 } else {
-                    System.err.println("Error, Final square does not exists!");
-                    return 4;
+                    return 4; //zwraca 4, gdy pole nie istnieje
                 }
             } else {
-                System.err.println("Error, There is no pawn there!");
-                return 5;
+                return 5; //zwraca 5, gdy na wskazanym polu nie ma pionka
             }
     
             /*

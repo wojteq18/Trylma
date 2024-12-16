@@ -1,7 +1,11 @@
 package com.example;
 
+
 import java.util.List;
 import java.util.Scanner;
+
+import com.example.MoveFactory.MoveHandler;
+import com.example.MoveFactory.MoveHandlerFactory;
 
 public class Game {
     String command, action;
@@ -61,29 +65,8 @@ public class Game {
                         try {
                             int moveResult = players[queue].move(x, y, newX, newY);
 
-                            if (moveResult == 0) {
-                                System.out.println("ok"); // Wyślij odpowiedź do serwera
-                                System.out.flush();
-                                queue = (queue + 1) % numberOfPlayers; // Przejdź do następnego gracza
-                            } else if (moveResult == 1) {
-                                System.out.println("error: Forbidden move!");
-                                System.out.flush();
-                            } else if (moveResult == 2) {
-                                System.out.println("error: Pawn is trying to escape from final area!");
-                                System.out.flush();
-                            } else if (moveResult == 3) {
-                                System.out.println("error: Final square is not empty!");
-                                System.out.flush();
-                            } else if (moveResult == 4) {
-                                System.out.println("error: Final square does not exist!");
-                                System.out.flush();
-                            } else if (moveResult == 5) {
-                                System.out.println("error: There is no pawn there!");
-                                System.out.flush();
-                            } else {
-                                System.out.println("error: Unknown error occurred.");
-                                System.out.flush();
-                            }
+                            MoveHandler handler = MoveHandlerFactory.getHandler(moveResult, numberOfPlayers, queue); //obsluga ruchu
+                            handler.handle();
 
                         } catch (Exception e) {
                             System.err.println("Błąd podczas wykonywania ruchu: " + e.getMessage());
