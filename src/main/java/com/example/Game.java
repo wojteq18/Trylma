@@ -28,22 +28,22 @@ public class Game {
                 if (players[queue].getState() == State.ACTIVE) {
                     //System.out.println("ok");
                     // Tworzenie reprezentacji stanu planszy
-                    List<Pawn> get = players[queue].getpawns();
-                    //StringBuilder boardState = new StringBuilder("Pionki: ");
-                    /*for (Pawn pawn : get) {
+                    /*List<Pawn> get = players[queue].getpawns();
+                    StringBuilder boardState = new StringBuilder("Pionki: ");
+                    for (Pawn pawn : get) {
                         boardState.append(pawn.getX())
                                 .append(" ")
                                 .append(pawn.getY())
                                 .append(" ")
                                 .append(pawn.getColor())
                                 .append(", ");
-                    }*/
+                    }
                     // Usuwamy ostatni przecinek i spację
-                    //if (boardState.length() > 8) {
-                        //boardState.setLength(boardState.length() - 2);
-                    //}
+                    if (boardState.length() > 8) {
+                        boardState.setLength(boardState.length() - 2);
+                    }
                     // Wyślij cały stan do serwera
-                    //System.out.println(boardState.toString());
+                    System.out.println(boardState.toString()); */
 
                     // Oczekiwanie na ruch gracza
                    
@@ -65,8 +65,12 @@ public class Game {
                         try {
                             int moveResult = players[queue].move(x, y, newX, newY);
 
-                            MoveHandler handler = MoveHandlerFactory.getHandler(moveResult, numberOfPlayers, queue); //obsluga ruchu
+                            MoveHandler handler = MoveHandlerFactory.getHandler(moveResult); //obsluga ruchu, fabryka massege
                             handler.handle();
+
+                            if (handler.shouldSwitchPlayer()) {
+                                queue = (queue + 1) % numberOfPlayers;
+                            }
 
                         } catch (Exception e) {
                             System.err.println("Błąd podczas wykonywania ruchu: " + e.getMessage());
@@ -82,11 +86,30 @@ public class Game {
                         // Przejdź do następnego gracza
                         queue = (queue + 1) % numberOfPlayers;
                         
-                    } else {
+                    } else if (action.equals("show")) {
+                        //System.out.println("ok");
+                    // Tworzenie reprezentacji stanu planszy
+                    List<Pawn> get = players[queue].getpawns();
+                    StringBuilder boardState = new StringBuilder("Pionki: ");
+                    for (Pawn pawn : get) {
+                        boardState.append(pawn.getX())
+                                .append(" ")
+                                .append(pawn.getY())
+                                .append(" ")
+                                .append(pawn.getColor())
+                                .append(", ");
+                    }
+                    // Usuwamy ostatni przecinek i spację
+                    if (boardState.length() > 8) {
+                        boardState.setLength(boardState.length() - 2);
+                    }
+                    // Wyślij cały stan do serwera
+                    System.out.println(boardState.toString());
+                    System.out.flush(); 
+                    }
+                    else {
                         System.out.println("error"); // Błędne polecenie
                         System.out.flush();
-                        //System.out.println("3");
-                        //System.exit(0); // Kończy program
                     }
                     commandScanner.close();
 

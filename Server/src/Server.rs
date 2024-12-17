@@ -85,6 +85,7 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     response
                     
                 };
+                
                 println!("Teraz: {}", java_response);
                 writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                 let first_word = java_response.trim().split_whitespace().next().unwrap_or("");
@@ -108,8 +109,11 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     }
                 } else if first_word == "error" || java_response.trim() == "Error" {
                     writeln!(writer_stream, "Błąd: Powtórz ruch").unwrap();
-                } else {
+                } else if first_word == "Pionki: " || first_word == "Pionki" {
+                    writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
+                } else {
+                    writeln!(writer_stream, "Powtorz ruch!");
                 }
             }
             Err(e) => {

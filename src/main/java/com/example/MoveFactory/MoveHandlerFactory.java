@@ -1,22 +1,22 @@
 package com.example.MoveFactory;
 
 public class MoveHandlerFactory {
-    public static MoveHandler getHandler (int moveResult, int numberOfPlayers, int queue) {
+    public static MoveHandler getHandler (int moveResult) {
         switch (moveResult) {
             case 0:
-                return new OkMoveHandler(numberOfPlayers, queue);
+                return new OkMoveHandler();
             case 1:
-                return new ForbiddenMove(numberOfPlayers, queue);
+                return new ForbiddenMove();
             case 2:
-                return new EscapeMove(numberOfPlayers, queue);
+                return new EscapeMove();
             case 3:
-                return new NotEmptyMove(numberOfPlayers, queue);
+                return new NotEmptyMove();
             case 4:
-                return new NotExistMove(numberOfPlayers, queue);
+                return new NotExistMove();
             case 5:
-                return new NoPawnMove(numberOfPlayers, queue); 
+                return new NoPawnMove(); 
             default:
-                return new UnknownError(numberOfPlayers, queue);                        
+                return new UnknownError();                        
         }
     }
 }

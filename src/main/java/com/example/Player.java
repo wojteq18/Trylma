@@ -104,9 +104,9 @@ public class Player{
                             multiMove(x, y);
                             oneMove(x, y);
     
-                            //for (Move move : pawn.getMoves()){
-                            //    System.out.println(pawn.getX() + " " + pawn.getY() + " " + move.getX() + " " + move.getY());
-                            //}
+                            /*for (Move move : pawn.getMoves()) {
+                                System.out.println(pawn.getX() + " " + pawn.getY() + " " + move.getX() + " " + move.getY());
+                            }*/
     
                             if (pawn.checkMove(new Move(newX, newY))){
                                 pawn.clearMoves();
@@ -114,8 +114,7 @@ public class Player{
                                 pawn.setY(newY);
                                 setSquareStatus(x, y, true);
                                 setSquareStatus(newX, newY, false);
-                                //doneMove = true;
-                                //System.out.println("Ok, Move has been done!");
+                                
                                 return 0; //zwraca 0, gdy ruch jest legalny
                             } else {
                                 return 1; //zwraca 1, gdy ruch jest zakazany (?)
@@ -132,12 +131,7 @@ public class Player{
             } else {
                 return 5; //zwraca 5, gdy na wskazanym polu nie ma pionka
             }
-    
-            /*
-                    for (Move move : pawn.getMoves()){
-                        System.out.println(pawn.getX() + " " + pawn.getY() + " " + move.getX() + " " + move.getY());
-                    }
-            */
+            
         //}
     }
     
