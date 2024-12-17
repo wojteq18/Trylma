@@ -113,7 +113,7 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
                 } else {
-                    writeln!(writer_stream, "Powtorz ruch!");
+                    writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!");
                 }
             }
             Err(e) => {
