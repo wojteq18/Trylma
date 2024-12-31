@@ -40,6 +40,8 @@ public class PlayerManager{
                 players[3] = new Player(Colors.BLACK, board, State.ACTIVE);
                 players[0] = new Player(Colors.WHITE, board, State.ACTIVE);
                 break;
+            //default:
+                //throw new IllegalArgumentException("Invalid number of players: " + numberOfPlayers);    
         }
     }
     public int activePlayers(Player[] players){

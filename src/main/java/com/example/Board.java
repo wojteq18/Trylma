@@ -6,9 +6,15 @@ import java.util.List;
 public class Board {
 
     protected List <Square> squares;
+    private int length;
 
     public Board(int length){
+        this.length = length;
         createBoard(length);
+    }
+
+    public int getLength() {
+        return length;
     }
 
     public void createBoard(int length){

@@ -11,6 +11,10 @@ public class FilledBoard extends Board{
         super(length);
         fillBoard(length, numberOfPlayers);
     }
+
+    //public int getLength(){
+      //  return length;
+    //}
     public List<Pawn> getPawns(){
         return pawns;
     }
