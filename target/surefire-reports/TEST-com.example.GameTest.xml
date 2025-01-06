@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<testsuite tests="1" failures="1" name="com.example.GameTest" time="0.002" errors="0" skipped="0">
+<testsuite tests="1" failures="0" name="com.example.GameTest" time="0.002" errors="0" skipped="0">
   <properties>
     <property name="java.runtime.name" value="OpenJDK Runtime Environment"/>
     <property name="java.vm.version" value="21.0.5+11-Ubuntu-1ubuntu122.04"/>
@@ -7,11 +7,10 @@
     <property name="maven.multiModuleProjectDirectory" value="/home/vostok/codes/Trylma"/>
     <property name="java.vm.vendor" value="Ubuntu"/>
     <property name="java.vendor.url" value="https://ubuntu.com/"/>
-    <property name="guice.disable.misplaced.annotation.check" value="true"/>
     <property name="path.separator" value=":"/>
+    <property name="guice.disable.misplaced.annotation.check" value="true"/>
     <property name="java.vm.name" value="OpenJDK 64-Bit Server VM"/>
     <property name="sun.java.launcher" value="SUN_STANDARD"/>
-    <property name="test" value="GameTest"/>
     <property name="java.vm.specification.name" value="Java Virtual Machine Specification"/>
     <property name="user.dir" value="/home/vostok/codes/Trylma"/>
     <property name="java.vm.compressedOopsMode" value="32-bit"/>
@@ -42,7 +41,7 @@
     <property name="java.class.path" value="/usr/share/maven/boot/plexus-classworlds-2.x.jar"/>
     <property name="java.vm.specification.version" value="21"/>
     <property name="sun.arch.data.model" value="64"/>
-    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher test -Dtest=GameTest"/>
+    <property name="sun.java.command" value="org.codehaus.plexus.classworlds.launcher.Launcher test"/>
     <property name="java.home" value="/usr/lib/jvm/java-21-openjdk-amd64"/>
     <property name="user.language" value="en"/>
     <property name="java.specification.vendor" value="Oracle Corporation"/>
@@ -57,9 +56,5 @@
     <property name="sun.io.unicode.encoding" value="UnicodeLittle"/>
     <property name="sun.cpu.endian" value="little"/>
   </properties>
-  <testcase classname="com.example.GameTest" name="com.example.GameTest.testBoardLength" time="0.002">
-    <failure message="Cannot invoke &quot;com.example.Board.getLength()&quot; because &quot;this.board&quot; is null" type="java.lang.NullPointerException">java.lang.NullPointerException: Cannot invoke &quot;com.example.Board.getLength()&quot; because &quot;this.board&quot; is null
-	at com.example.GameTest.testBoardLength(GameTest.java:17)
-</failure>
-  </testcase>
+  <testcase classname="com.example.GameTest" name="com.example.GameTest.testPlayerInitialization" time="0.002"/>
 </testsuite>

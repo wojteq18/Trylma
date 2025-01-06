@@ -1,8 +1,4 @@
 -------------------------------------------------------------------------------
 Test set: com.example.GameTest
 -------------------------------------------------------------------------------
-Tests run: 1, Failures: 1, Errors: 0, Skipped: 0, Time elapsed: 0.003 sec <<< FAILURE!
-com.example.GameTest.testBoardLength()  Time elapsed: 0.002 sec  <<< FAILURE!
-java.lang.NullPointerException: Cannot invoke "com.example.Board.getLength()" because "this.board" is null
-	at com.example.GameTest.testBoardLength(GameTest.java:17)
-
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 0.002 sec
