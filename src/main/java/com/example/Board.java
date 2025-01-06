@@ -76,4 +76,8 @@ public class Board {
     public List<Square> getSquares(){
         return squares;
     }
+
+    public int amountOfSquares(){
+        return squares.size();
+    }
 }
