@@ -11,7 +11,7 @@ public class Game {
     String command, action;
     int x, y, newX, newY;
 
-    public Game(int length, int numberOfPlayers) {
+    public Game(int length, int numberOfPlayers) { //TODO - dodac strategie
         FilledBoard board = new FilledBoard(length, numberOfPlayers);
         PlayerManager manager = new PlayerManager(numberOfPlayers, board);
         Player[] players = manager.getPlayers();

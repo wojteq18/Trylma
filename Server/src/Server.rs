@@ -6,10 +6,7 @@ use std::process::{Command, Stdio};
 use std::io;
 
 mod Message;
-use crate::Message::message::message;
-use crate::Message::error_message::error_message;
-use crate::Message::move_message::move_message;
-use crate::Message::builder::MessageBuilder;
+
 
 fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje je do procesu javy, odbiera odpowiedz od javy, przekazuje ja do klienta
     stream: TcpStream, //reprezentuje polaczenie z jednym klientem, jest to gniazdo TCP
@@ -34,12 +31,10 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
             Ok(0) => {
                 // Klient zamknął połączenie
                 println!("Klient rozłączył się: {}", peer_addr);
-                println!("Hejla0");
                 break;
             }
 
             Ok(_) => {
-                println!("Hejla_");
                 let message = buffer.trim();
 
                 // Sprawdź, czy to jest tura gracza
@@ -185,7 +180,7 @@ fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> 
     clients
 }
 
-fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>) { //informuje proces java o liczbie graczy
+fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>) { //informuje proces java o liczbie graczy,  TODO przekazac strategie
     let mut java_stdin_guard = java_stdin.lock().unwrap();
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
 }
@@ -225,8 +220,21 @@ fn main() -> std::io::Result<()> {
         println!("Podaj ilość graczy: ");
         let mut max_players = String::new();
         io::stdin().read_line(&mut max_players).expect("Błąd odczytu");
-        max_players.trim().parse().expect("Błąd parsowania")
+        let max_players: usize = max_players.trim().parse().expect("Błąd parsowania");
+        max_players  // zwracamy przetworzoną wartość
     };
+
+    let strategy = {
+        println!("Podaj numer strategii: ");
+        println!("1. Strategia losowa");
+        println!("2. Strategia zachłanna");
+        
+        let mut strategy = String::new();
+        io::stdin().read_line(&mut strategy).expect("Błąd odczytu");
+        let strategy: usize = strategy.trim().parse().expect("Błąd parsowania");
+        strategy  // zwracamy przetworzoną wartość
+    };
+
     let listener = initialize_server("127.0.0.1:9999")?;
 
     let clients = accept_clients(&listener, max_players);
@@ -236,7 +244,7 @@ fn main() -> std::io::Result<()> {
         "com.example.Main", // Główna klasa Java
     );
 
-    initialize_game(max_players, &java_stdin);
+    initialize_game(max_players, &java_stdin); //TODO: przekazac strategie
 
     let current_player = Arc::new(Mutex::new(0));
 
