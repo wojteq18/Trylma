@@ -24,13 +24,29 @@ public class Client
             Thread t = new Thread(() -> {
                 try {
                     String msg;
-                    while((msg = serverInput.readLine()) != null) {
-                        System.out.println(msg);
+                    boolean isReady = false; // Flaga oznaczająca, czy gra może się rozpocząć
+
+                    while ((msg = serverInput.readLine()) != null) {
+                        if (!isReady) {
+                            // Obsługa wiadomości w stanie "lobby"
+                            if (msg.equals("Oczekiwanie na pozostałych graczy...")) {
+                                System.out.println("Oczekiwanie na graczy"); // Wiadomość oczekiwania na graczy
+                            } else if (msg.equals("Wszyscy gracze dołączyli, gra się rozpoczyna!")) {
+                                System.out.println(msg); // Gra się rozpoczyna
+                                isReady = true; // Oznacz jako gotowe do gry
+                            } else {
+                                System.out.println("Błąd"); // Nieznana wiadomość w lobby
+                            }
+                        } else {
+                            // Obsługa wiadomości po rozpoczęciu gry
+                            System.out.println(msg);
+                        }
                     }
                 } catch (Exception e) {
-                    System.out.println("Blad odczytu od serwera " + e.getMessage());
+                    System.out.println("Błąd odczytu od serwera " + e.getMessage());
                 }
             });
+
 
             t.start();
 
@@ -53,5 +69,4 @@ public class Client
             System.out.println("Blad polaczenia z serwerem " + e.getMessage());
         }
     }
-
 }
