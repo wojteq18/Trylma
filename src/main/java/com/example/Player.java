@@ -249,4 +249,43 @@ public class Player{
         }
         return true;
     }
+
+    //funkcja testowa, dla sprawdzenia poprawności metody hasWon()
+    public void hasWonTest(){
+        Colors playerColor = color;
+        switch (playerColor) {
+            case WHITE:
+                if(checkWin(Colors.WHITE)){
+                    state = State.INACTIVE;
+                }
+                break;
+            case BLACK:
+                if(checkWin(Colors.WHITE)){
+                    state = State.INACTIVE;
+                }
+                break;
+            case YELLOW:
+                if(checkWin(Colors.RED)){
+                    state = State.INACTIVE;
+                }
+                break;
+            case RED:
+                if(checkWin(Colors.YELLOW)){
+                    state = State.INACTIVE;
+                }
+                break;
+            case BLUE:
+                if(checkWin(Colors.GREEN)){
+                    state = State.INACTIVE;
+                }
+                break;
+            case GREEN:
+                if(checkWin(Colors.BLUE)){
+                    state = State.INACTIVE;
+                }
+                break;
+            default:
+                break;
+        }
+    }
 }
