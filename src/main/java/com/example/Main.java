@@ -6,6 +6,6 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         int maxPlayers = scanner.nextInt(); // Odbierz liczbę graczy z serwera
-        new Game(5, maxPlayers); // Tworzenie planszy z podaną liczbą graczy
+        new Game(5, maxPlayers); // Tworzenie planszy z podaną liczbą graczy, TODO - dodac strategie
     }
 }

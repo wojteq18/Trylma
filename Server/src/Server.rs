@@ -5,9 +5,6 @@ use std::thread;
 use std::process::{Command, Stdio};
 use std::io;
 
-mod Message;
-
-
 fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje je do procesu javy, odbiera odpowiedz od javy, przekazuje ja do klienta
     stream: TcpStream, //reprezentuje polaczenie z jednym klientem, jest to gniazdo TCP
     clients: Arc<Mutex<Vec<TcpStream>>>, //lista przechowujaca polaczenia z klientami
@@ -108,7 +105,7 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
                 } else {
-                    writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!");
+                    writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!").unwrap();
                 }
             }
             Err(e) => {
@@ -176,7 +173,9 @@ fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> 
         }
     }
 
-    println!("Wszyscy gracze dołączyli, rozpocznij grę");
+    for client in &mut clients {
+        writeln!(client, "Wszyscy gracze dołączyli, gra się rozpoczyna!").expect("Błąd wysyłania wiadomości do klienta");
+    }
     clients
 }
 

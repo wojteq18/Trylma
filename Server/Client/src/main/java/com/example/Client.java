@@ -37,11 +37,12 @@ public class Client
             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
             Scanner scanner = new Scanner(System.in);
 
-            while (true) {
+            boolean isRunning = true;
+            while (isRunning) {
                 String input = scanner.nextLine();
                 output.println(input); //wyslanie tesktu de serwera 
                 if ("exit".equals(input)) {
-                    break;
+                    isRunning = false;
                 }
             }
             socket.close();
