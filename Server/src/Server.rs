@@ -225,8 +225,9 @@ fn main() -> std::io::Result<()> {
 
     let strategy = {
         println!("Podaj numer strategii: ");
-        println!("1. Strategia losowa");
-        println!("2. Strategia zachłanna");
+        println!("1. Brak");  //zmieniłem strategie na nasze konkretne
+        println!("2. Yin and Yang");
+        println!("3. Order Out of Chaos");
         
         let mut strategy = String::new();
         io::stdin().read_line(&mut strategy).expect("Błąd odczytu");
@@ -239,7 +240,7 @@ fn main() -> std::io::Result<()> {
     let clients = accept_clients(&listener, max_players);
 
     let (java_stdin, java_reader) = setup_java_process(
-        "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
+        "/home/user/Programowanie/3sem/TP/2czesc/Trylma/target/classes", // Nowa ścieżka do klasy Java
         "com.example.Main", // Główna klasa Java
     );
 
