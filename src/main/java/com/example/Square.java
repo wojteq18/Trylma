@@ -27,4 +27,7 @@ public class Square{
     public void setStatus(boolean isEmpty){
         this.isEmpty = isEmpty;
     }
+    public void setColor(Colors color){
+        this.color = color;
+    }
 }

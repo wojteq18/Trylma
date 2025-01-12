@@ -41,6 +41,14 @@ public class ChaosBoard extends Board {
                 System.err.println("Wrong amount of players!");             
                 break;
         }
+        changeSquareColor(Colors.BLACK, Colors.WHITE);
+        changeSquareColor(Colors.WHITE, Colors.BLACK);
+        changeSquareColor(Colors.BLUE, Colors.YELLOW);
+        changeSquareColor(Colors.YELLOW, Colors.BLUE);
+        changeSquareColor(Colors.RED, Colors.GREEN);
+        changeSquareColor(Colors.GREEN, Colors.RED);
+
+
     }
     public void setPawn(Colors color){
         List <Square> chaosSquares = new ArrayList<>();
@@ -55,6 +63,13 @@ public class ChaosBoard extends Board {
             Square square = chaosSquares.get(randomIndex);
             pawns.add(new Pawn(square.getX(), square.getY(), color));
             square.setStatus(false);
+        }
+    }
+    public void changeSquareColor(Colors start, Colors end){
+        for (Square square : squares){
+            if(square.getColor() == start){
+                square.setColor(end);
+            }
         }
     }
 }
