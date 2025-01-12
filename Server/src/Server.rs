@@ -158,14 +158,15 @@ fn setup_java_process( //uruchamia proces javy
 }
 
 fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
-    let mut clients = Vec::new();
-    println!("Oczekiwanie na graczy...");
-
-    while clients.len() < max_players {
+    let mut clients: Vec<TcpStream> = Vec::new();
+    while clients.len() < max_players {    
         match listener.accept() {
-            Ok((stream, _)) => {
+            Ok((mut stream, _)) => {
                 println!("Nowe połączenie: {}", stream.peer_addr().unwrap());
+                writeln!(stream, "Oczekiwanie na pozostałych graczy...")
+                .expect("Błąd wysyłania wiadomości do nowego klienta");
                 clients.push(stream);
+
             }
             Err(e) => {
                 println!("Błąd połączenia: {}", e);
@@ -179,9 +180,10 @@ fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> 
     clients
 }
 
-fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>) { //informuje proces java o liczbie graczy,  TODO przekazac strategie
+fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>, strategy: usize) { //informuje proces java o liczbie graczy,  TODO przekazac strategie
     let mut java_stdin_guard = java_stdin.lock().unwrap();
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
+    writeln!(java_stdin_guard, "{}", strategy).expect("Nie udało się przesłać strategii do Javy");
 }
 
 fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy osobny watek dla klienta w ktorym dziala handle_client
@@ -225,9 +227,9 @@ fn main() -> std::io::Result<()> {
 
     let strategy = {
         println!("Podaj numer strategii: ");
-        println!("1. Brak");  //zmieniłem strategie na nasze konkretne
-        println!("2. Yin and Yang");
-        println!("3. Order Out of Chaos");
+        println!("0. Strategia standardowa");
+        println!("1. Strategia pierwsza");
+        println!("2. Strategia strategia druga");
         
         let mut strategy = String::new();
         io::stdin().read_line(&mut strategy).expect("Błąd odczytu");
@@ -240,11 +242,11 @@ fn main() -> std::io::Result<()> {
     let clients = accept_clients(&listener, max_players);
 
     let (java_stdin, java_reader) = setup_java_process(
-        "/home/user/Programowanie/3sem/TP/2czesc/Trylma/target/classes", // Nowa ścieżka do klasy Java
+        "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
         "com.example.Main", // Główna klasa Java
     );
 
-    initialize_game(max_players, &java_stdin); //TODO: przekazac strategie
+    initialize_game(max_players, &java_stdin, strategy); 
 
     let current_player = Arc::new(Mutex::new(0));
 
