@@ -4,13 +4,13 @@ public class PlayerManager{
 
     private Player[] players;
 
-    public PlayerManager(int numberOfPlayers, FilledBoard board){
+    public PlayerManager(int numberOfPlayers, Board board){
         createPlayers(numberOfPlayers, board);
     }
     public Player[] getPlayers(){
         return players;
     }
-    public void createPlayers(int numberOfPlayers, FilledBoard board){
+    public void createPlayers(int numberOfPlayers, Board board){
         
         switch (numberOfPlayers){
             case 2:

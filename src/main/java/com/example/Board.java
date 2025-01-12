@@ -6,6 +6,7 @@ import java.util.List;
 public class Board {
 
     protected List <Square> squares;
+    protected List <Pawn> pawns;
     private int length;
 
     public Board(int length){
@@ -79,5 +80,8 @@ public class Board {
 
     public int amountOfSquares(){
         return squares.size();
+    }
+    public List<Pawn> getPawns(){
+        return pawns;
     }
 }

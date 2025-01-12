@@ -5,19 +5,12 @@ import java.util.List;
 
 public class FilledBoard extends Board{
 
-    private List <Pawn> pawns;
 
     public FilledBoard(int length, int numberOfPlayers){
         super(length);
         fillBoard(length, numberOfPlayers);
     }
 
-    //public int getLength(){
-      //  return length;
-    //}
-    public List<Pawn> getPawns(){
-        return pawns;
-    }
     public void fillBoard(int length, int numberOfPlayers){
         pawns = new ArrayList<>();
         switch (numberOfPlayers){

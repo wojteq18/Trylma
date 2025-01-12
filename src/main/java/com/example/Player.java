@@ -6,11 +6,11 @@ import java.util.List;
 public class Player{
     
     private Colors color;
-    private FilledBoard board;
+    private Board board;
     private List <Pawn> mypawns;
     private State state;
 
-    public Player(Colors color, FilledBoard board, State state){
+    public Player(Colors color, Board board, State state){
         this.color = color;
         this.board = board;
         this.state = state;

@@ -12,7 +12,19 @@ public class Game {
     int x, y, newX, newY;
 
     public Game(int length, int numberOfPlayers, int strategy) { //TODO - dodac strategie
-        FilledBoard board = new FilledBoard(length, numberOfPlayers);
+        Board board;
+        switch (strategy) {
+            case 1:
+                board = new FilledBoard(length, numberOfPlayers);
+                break;
+            case 2:
+                board = new YinBoard(length, numberOfPlayers);
+            case 3:
+                board = new ChaosBoard(length, numberOfPlayers);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid strategy: " + strategy);
+        }
         PlayerManager manager = new PlayerManager(numberOfPlayers, board);
         Player[] players = manager.getPlayers();
 
