@@ -25,50 +25,27 @@ public class Game {
             default:
                 throw new IllegalArgumentException("Invalid strategy: " + strategy);
         }
+        
+        //do serwera wysyłamy wszystkie koordynaty na start
+        board.printAllCoordinates();
+        System.out.flush();
+
         PlayerManager manager = new PlayerManager(numberOfPlayers, board);
         Player[] players = manager.getPlayers();
 
         Scanner scanner = new Scanner(System.in); // Odbieraj dane z serwera
         int queue = 0;
-        //System.out.println("");
-
 
         while (manager.activePlayers(players) > 1) {
-            // System.out.println("ok");
             try {
-                // System.out.println("ok");
                 if (players[queue].getState() == State.ACTIVE) {
-                    //System.out.println("ok");
-                    // Tworzenie reprezentacji stanu planszy
-                    /*List<Pawn> get = players[queue].getpawns();
-                    StringBuilder boardState = new StringBuilder("Pionki: ");
-                    for (Pawn pawn : get) {
-                        boardState.append(pawn.getX())
-                                .append(" ")
-                                .append(pawn.getY())
-                                .append(" ")
-                                .append(pawn.getColor())
-                                .append(", ");
-                    }
-                    // Usuwamy ostatni przecinek i spację
-                    if (boardState.length() > 8) {
-                        boardState.setLength(boardState.length() - 2);
-                    }
-                    // Wyślij cały stan do serwera
-                    System.out.println(boardState.toString()); */
 
                     // Oczekiwanie na ruch gracza
-                   
                     command = scanner.nextLine();                    
                     Scanner commandScanner = new Scanner(command);                    
                     action = commandScanner.next();
-                    //System.out.println("Action: " + action);
-                    //System.out.flush();
-
-                    
-                    if (action.equals("move")) {       
-                        //System.out.println("obiad");
-                        //System.out.flush();                 
+         
+                    if (action.equals("move")) {                        
                         x = commandScanner.nextInt();
                         y = commandScanner.nextInt();
                         newX = commandScanner.nextInt();
@@ -91,8 +68,6 @@ public class Game {
                             System.out.flush();
                         }
                     } else if (action.equals("wait")) {
-                        //System.out.println("2");
-                        //System.exit(0); // Kończy program
                         System.out.println("ok"); // Wyślij odpowiedź do serwera
                         System.out.flush();
                         // Przejdź do następnego gracza
@@ -140,12 +115,6 @@ public class Game {
                 e.printStackTrace();
                 System.out.println("error");
             }
-
-            //System.out.println("ok");
-
-            // Wyświetlenie informacji o następnym graczu po zmianie kolejki
-            //System.out.println("Kolej gracza: " + (queue + 1));
-            //scanner.close();
         }
 
         // Zakończenie gry

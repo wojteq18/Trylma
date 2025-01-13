@@ -70,7 +70,6 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                 let java_response = {
                     let mut java_reader_guard = java_reader.lock().unwrap();
                     let mut response = String::new();
-                    //println!("Hał, hał2");
                     java_reader_guard
                         .read_line(&mut response)
                         .expect("Błąd odczytu z procesu Javy");
@@ -104,7 +103,8 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                 } else if first_word == "Pionki: " || first_word == "Pionki" {
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
-                } else {
+                }
+                else {
                     writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!").unwrap();
                 }
             }
@@ -157,7 +157,7 @@ fn setup_java_process( //uruchamia proces javy
     return (java_stdin, java_reader)
 }
 
-fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
+fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
     let mut clients: Vec<TcpStream> = Vec::new();
     while clients.len() < max_players {    
         match listener.accept() {
@@ -176,6 +176,7 @@ fn accept_clients(listener: &TcpListener, max_players: usize) -> Vec<TcpStream> 
 
     for client in &mut clients {
         writeln!(client, "Wszyscy gracze dołączyli, gra się rozpoczyna!").expect("Błąd wysyłania wiadomości do klienta");
+        writeln!(client, "{}", coordinates).expect("Błąd wysyłania współrzędnych do klienta");
     }
     clients
 }
@@ -228,8 +229,8 @@ fn main() -> std::io::Result<()> {
     let strategy = {
         println!("Podaj numer strategii: ");
         println!("0. Strategia standardowa");
-        println!("1. Strategia pierwsza");
-        println!("2. Strategia strategia druga");
+        println!("1. Strategia Yin-Yang");
+        println!("2. Strategia Chaos");
         
         let mut strategy = String::new();
         io::stdin().read_line(&mut strategy).expect("Błąd odczytu");
@@ -239,14 +240,23 @@ fn main() -> std::io::Result<()> {
 
     let listener = initialize_server("127.0.0.1:9999")?;
 
-    let clients = accept_clients(&listener, max_players);
-
     let (java_stdin, java_reader) = setup_java_process(
         "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
         "com.example.Main", // Główna klasa Java
     );
 
     initialize_game(max_players, &java_stdin, strategy); 
+
+    let coordinates = {
+        let mut java_reader_guard = java_reader.lock().unwrap();
+        let mut response = String::new();
+        java_reader_guard
+            .read_line(&mut response)
+            .expect("Błąd odczytu koordynatów z procesu Javy");
+        response.trim().to_string()
+    };
+    
+    let clients = accept_clients(&listener, max_players, &coordinates);
 
     let current_player = Arc::new(Mutex::new(0));
 

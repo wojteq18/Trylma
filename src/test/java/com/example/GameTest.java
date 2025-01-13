@@ -9,6 +9,7 @@ public class GameTest {
     private FilledBoard filledBoard = new FilledBoard(5, 2);
     private Board board = new Board(5);
     private Board board1 = new Board(7);
+    private YinBoard yinBoard = new YinBoard(5, 2);
     private Player player = new Player(color, filledBoard, State.ACTIVE);
 
     @Test
