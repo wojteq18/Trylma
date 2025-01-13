@@ -18,6 +18,7 @@ public class Game {
                 break;
             case 2:
                 board = new YinBoard(length, numberOfPlayers);
+                break;
             case 3:
                 board = new ChaosBoard(length, numberOfPlayers);
                 break;

@@ -4,9 +4,11 @@
 /home/vostok/codes/Trylma/src/main/java/com/example/Main.java
 /home/vostok/codes/Trylma/src/main/java/com/example/PlayerManager.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Pawn.java
+/home/vostok/codes/Trylma/src/main/java/com/example/ChaosBoard.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Board.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Colors.java
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/UnknownError.java
+/home/vostok/codes/Trylma/src/main/java/com/example/YinBoard.java
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/NoPawnMove.java
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/NotExistMove.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Square.java

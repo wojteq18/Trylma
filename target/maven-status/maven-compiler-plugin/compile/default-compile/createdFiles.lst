@@ -1,12 +1,14 @@
 com/example/MoveFactory/NotExistMove.class
 com/example/MoveFactory/OkMoveHandler.class
 com/example/FilledBoard.class
+com/example/ChaosBoard.class
 com/example/Colors.class
 com/example/MoveFactory/MoveHandlerFactory.class
 com/example/Move.class
 com/example/MoveFactory/UnknownError.class
 com/example/Player.class
 com/example/Game.class
+com/example/YinBoard.class
 com/example/MoveFactory/NoPawnMove.class
 com/example/PlayerManager.class
 com/example/MoveFactory/MoveHandler.class

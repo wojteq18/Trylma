@@ -10,19 +10,20 @@ public class YinBoard extends FilledBoard{
         yinSwitch();
     }
 
-    public void yinSwitch(){
-        for (Pawn pawn : pawns){
-            if (pawn.getColor() == Colors.BLACK){
-                pawns.remove(pawn);
-            }
-        for(Square square : squares){
-            if (square.getColor() == Colors.BLACK){
+    public void yinSwitch() {
+        // Usuń pionki o kolorze BLACK
+        pawns.removeIf(pawn -> pawn.getColor() == Colors.BLACK);
+
+        // Zmień status pól o kolorze BLACK na true
+        for (Square square : squares) {
+            if (square.getColor() == Colors.BLACK) {
                 square.setStatus(true);
             }
         }
-        }
-        for (Square square : squares){
-            if (square.getColor() == Colors.GREEN){
+
+        // Dodaj nowe pionki o kolorze GREEN i zmień status pól
+        for (Square square : squares) {
+            if (square.getColor() == Colors.GREEN) {
                 pawns.add(new Pawn(square.getX(), square.getY(), Colors.GREEN));
                 square.setStatus(false);
             }
