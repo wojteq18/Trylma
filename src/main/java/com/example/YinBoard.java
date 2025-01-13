@@ -31,14 +31,13 @@ public class YinBoard extends FilledBoard{
     }
 
     public void printAllCoordinates() {
-        StringBuilder sb = new StringBuilder("[");
+        StringBuilder sb = new StringBuilder();
         for (Pawn pawn : pawns) {
-            sb.append("(").append(pawn.getX()).append(", ").append(pawn.getY()).append("), ");
+            sb.append("(").append(pawn.getX()).append(", ").append(pawn.getY()).append(", ").append(pawn.getColor()).append("), ");
         }
         if (!pawns.isEmpty()) {
             sb.setLength(sb.length() - 2); // Usuń ostatni przecinek i spację
         }
-        sb.append("]");
         System.out.println(sb);
     }
 }
