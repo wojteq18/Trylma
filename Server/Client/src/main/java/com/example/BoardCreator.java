@@ -10,45 +10,50 @@ import javafx.scene.input.MouseEvent;
 import java.util.*;
 
 public class BoardCreator {
-        public void create(VBox root, List<Circle> circles) {
-            for (int i = 1; i <= 4; i++) {
-                HBox hbox = new HBox(10);
-                createRow(hbox, i, Color.GREY, Color.WHITE, circles);
-                root.getChildren().add(hbox);
-            }
+        public void create(VBox root, HashMap<Position, Circle> circles) {
 
-            for (int i = 13; i >= 9; i--) {
-                HBox hbox = new HBox(10);
-                createRow(hbox, i, Color.GREY, Color.GREY, circles);
-                root.getChildren().add(hbox);
-            }
-
-            for (int i = 10; i <= 13; i++) {
-                HBox hbox = new HBox(10);
-                createRow(hbox, i, Color.GREY, Color.GREY, circles);
-                root.getChildren().add(hbox);
-            }
-
-            for (int i = 4; i >= 1; i--) {
-                HBox hbox = new HBox(10);
-                createRow(hbox, i, Color.GREY, Color.BLACK, circles);
-                root.getChildren().add(hbox);
-            }
-
+                for (int i = 0; i <= 3; i++) {
+                    HBox hbox = new HBox(10);
+                    for (int j = -i; j <= i; j = j + 2)
+                    createRow(hbox, Color.GREY, Color.WHITE, i, j, circles);
+                    root.getChildren().add(hbox);
+                }
+                int count = 0;
+                for (int i = 4; i <= 8; i++) {
+                    HBox hbox = new HBox(10);
+                    for (int j = -12 + count; j <= 12 - count; j = j + 2)
+                    createRow(hbox, Color.GREY, Color.WHITE, i, j, circles);
+                    root.getChildren().add(hbox);
+                    count++;
+                }
+                count = 0;
+                for (int i = 9; i <= 12; i++) {
+                    HBox hbox = new HBox(10);
+                    for (int j = -9 - count; j <= 9 +count; j = j + 2)
+                    createRow(hbox, Color.GREY, Color.WHITE, i, j, circles);
+                    root.getChildren().add(hbox);
+                    count++;
+                }
+                count = 0;
+                for (int i = 13; i <= 16; i++) {
+                    HBox hbox = new HBox(10);
+                    for (int j = -3 + count; j <= 3 - count; j = j + 2)
+                    createRow(hbox, Color.GREY, Color.WHITE, i, j, circles);
+                    root.getChildren().add(hbox);
+                    count ++;
+                }
             root.setAlignment(Pos.CENTER);
         }
 
-        private void createRow(HBox hbox, int numCircles, Color fillColor, Color strokeColor, List<Circle> circles) {
-            for (int j = 1; j <= numCircles; j++) {
-                Circle circle = new Circle(15);
-                circles.add(circle);
-                circle.setStroke(strokeColor);
-                circle.setFill(fillColor);
-                circle.setOnMouseClicked(e ->{
-                    System.out.println("klik");
-                });
-                hbox.getChildren().add(circle);
-            }
+        public void createRow(HBox hbox, Color fillColor, Color strokeColor, int i, int j, HashMap<Position, Circle> circles) {
+            Circle circle = new Circle(15);
+            circle.setStroke(strokeColor);
+            circle.setFill(fillColor);
+            circles.put(new Position(i, j), circle);
+            circle.setOnMouseClicked(e ->{
+                System.out.println("klik" + i + " " + j);
+            });
+            hbox.getChildren().add(circle);
             hbox.setAlignment(Pos.CENTER);
         }
 }

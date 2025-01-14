@@ -17,11 +17,11 @@ import java.util.*;
 
 public class GameGUI extends VBox{
 
-    private List<Circle> circles;
+    private HashMap<Position, Circle> circles;
     private Circle circle;
     private HBox hbox;
     public GameGUI(){
-        circles = new ArrayList<>();
+        circles = new HashMap<>();
         System.out.println("elo");
 
         BoardCreator creator = new BoardCreator();

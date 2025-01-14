@@ -6,6 +6,7 @@ import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.animation.PauseTransition;
 import javafx.scene.Scene;

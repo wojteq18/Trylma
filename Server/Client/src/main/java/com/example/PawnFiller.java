@@ -17,7 +17,7 @@ import java.util.*;
 
 public class PawnFiller {
 
-    public void fill(VBox root, List<Circle> circles){
-        
+    public void fill(VBox root, HashMap<Position, Circle> circles){
+
     }
 }
