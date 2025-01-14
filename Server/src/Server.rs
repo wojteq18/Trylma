@@ -11,6 +11,7 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
     current_player: Arc<Mutex<usize>>, //indeks aktualnego gracza
     java_stdin: Arc<Mutex<std::process::ChildStdin>>, //wspoldzielony strumien wejsciowy
     java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>, //wspoldzielony obiekt do odczytu odpowiedzi od javy
+    coordinates: Arc<Mutex<String>>,
 ) {
     let reader_stream = stream.try_clone().expect("Błąd klonowania strumienia");
     let mut writer_stream = stream;
@@ -79,6 +80,12 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                 
                 println!("Teraz: {}", java_response);
                 writeln!(writer_stream, "{}", java_response.trim()).unwrap();
+
+                /*{
+                    let mut coordinates_guard = coordinates.lock().unwrap();
+                    *coordinates_guard = java_response.trim().to_string(); // Zakładamy, że `java_response` zawiera nowe coordinates
+                }*/
+
                 let first_word = java_response.trim().split_whitespace().next().unwrap_or("");
 
                 if first_word == "ok" || java_response.trim() == "Ok" {
@@ -96,6 +103,21 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                                 .expect("Błąd wysyłania powiadomienia do następnego gracza");
                             writeln!(next_writer, "Twoja kolej!")
                                 .expect("Błąd wysyłania powiadomienia do następnego gracza");
+
+                            let update_coordinates = {
+                                let mut java_stdin_guard = java_stdin.lock().unwrap();
+                                writeln!(java_stdin_guard, "update")
+                                    .expect("Nie udało się wysłać update do procesu Javy");
+
+                                let mut java_reader_guard = java_reader.lock().unwrap();
+                                let mut response = String::new();
+                                java_reader_guard
+                                    .read_line(&mut response)
+                                    .expect("Błąd odczytu z procesu Javy");
+                                response.trim().to_string()
+                            };
+
+                            writeln!(next_writer, "{}", update_coordinates).expect("Błąd wysyłania współrzędnych do klienta");  
                         }
                     }
                 } else if first_word == "error" || java_response.trim() == "Error" {
@@ -104,6 +126,10 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
                 }
+                //else if java_response.trim().starts_with('(') {
+                  //  writeln!(writer_stream, "{}", java_response.trim()).unwrap();
+                    //continue;
+                //}
                 else {
                     writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!").unwrap();
                 }
@@ -192,6 +218,7 @@ fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy oso
     current_player: Arc<Mutex<usize>>,
     java_stdin: Arc<Mutex<std::process::ChildStdin>>,
     java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>,
+    coordinates: Arc<Mutex<String>>,
 ) {
     let clients = Arc::new(Mutex::new(clients));
 
@@ -203,9 +230,10 @@ fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy oso
             let current_player = Arc::clone(&current_player);
             let java_stdin = Arc::clone(&java_stdin);
             let java_reader = Arc::clone(&java_reader);
+            let coordinates = Arc::clone(&coordinates);
 
             thread::spawn(move || {
-                handle_client(client, clients, current_player, java_stdin, java_reader);
+                handle_client(client, clients, current_player, java_stdin, java_reader, Arc::clone(&coordinates));
             });
         }
     }
@@ -247,20 +275,24 @@ fn main() -> std::io::Result<()> {
 
     initialize_game(max_players, &java_stdin, strategy); 
 
-    let coordinates = {
+    let coordinates = Arc::new(Mutex::new(String::new()));
+
+    {
         let mut java_reader_guard = java_reader.lock().unwrap();
         let mut response = String::new();
         java_reader_guard
             .read_line(&mut response)
             .expect("Błąd odczytu koordynatów z procesu Javy");
-        response.trim().to_string()
-    };
+        let mut coordinates_guard = coordinates.lock().unwrap();
+        *coordinates_guard = response.trim().to_string();
+    }
+
     
-    let clients = accept_clients(&listener, max_players, &coordinates);
+    let clients = accept_clients(&listener, max_players, &coordinates.lock().unwrap());
 
     let current_player = Arc::new(Mutex::new(0));
 
-    start_game(clients, current_player, java_stdin, java_reader);
+    start_game(clients, current_player, java_stdin, java_reader, coordinates);
 
     run_server_loop();
 

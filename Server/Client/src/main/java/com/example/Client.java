@@ -5,28 +5,25 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.Scanner;
 
-import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 
 public class Client extends Application {
     private Lobby lobby;
-    private GameGUI game;
-    private Stage primaryStage;
+    private boolean isReady = false;
 
     @Override
     public void start(Stage primaryStage) {
-        this.primaryStage = primaryStage;
         // Utworzenie lobby
         lobby = new Lobby();
 
         // Konfiguracja sceny i okna
-        Scene lobbyscene = new Scene(lobby, 400, 200);
-        primaryStage.setScene(lobbyscene);
-        primaryStage.setTitle("Trylma");
+        Scene scene = new Scene(lobby, 400, 200);
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Lobby");
         primaryStage.show();
 
         // Rozpoczęcie klienta sieciowego w osobnym wątku
@@ -41,35 +38,56 @@ public class Client extends Application {
             BufferedReader serverInput = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             PrintWriter output = new PrintWriter(socket.getOutputStream(), true);
 
-            String msg;
-            while ((msg = serverInput.readLine()) != null) {
-                String finalMsg = msg;
-                javafx.application.Platform.runLater(() -> {
-                    if (finalMsg.equals("Oczekiwanie na pozostałych graczy...")) {
-                        lobby.setWaitingMessage(finalMsg);
-                    } else if (finalMsg.equals("Wszyscy gracze dołączyli, gra się rozpoczyna!")) {
-                        lobby.setLobbyMessage(finalMsg);
-                        startGame();
-                    } else {
-                        lobby.setLobbyMessage("Nieznana wiadomość: " + finalMsg);
+            //Wątek do odbierania wiadomosci od serwera
+            Thread receiveThread = new Thread(() -> {
+                try {
+                    String msg;
+                    while ((msg = serverInput.readLine()) != null) {
+                        if (msg.equals("Wszyscy gracze dołączyli, gra się rozpoczyna!")) {
+                            isReady = true;
+                        }
+                        else if (msg.equals("Oczekiwanie na pozostałych graczy...")) {
+                            lobby.setWaitingMessage(msg);
+                        }
+                        if (isReady == true) {
+                            System.out.println(msg);
+                        }
                     }
-                });
-            }
+                    
+                } catch (IOException e) {
+                    System.out.println("Błąd podczas odbierania wiadomosci: " + e.getMessage());
+                }
+            });
+            receiveThread.start();
 
-            socket.close();
-        } catch (IOException e) {
+            //Wątek do wysyłania wiadomości do serwera
+            Thread sendThread = new Thread(() -> {
+                Scanner scanner = new Scanner(System.in);
+                try {
+                    boolean isRunning = true;
+                    while (isRunning) { 
+                        String message = scanner.nextLine();
+                        output.println(message);
+                        if ("exit".equalsIgnoreCase(message)) {
+                            isRunning = false;
+                        } 
+                    }
+                    scanner.close();
+                    socket.close();
+                } catch (IOException e) {
+                    System.out.println("Błąd podczas wysyłania wiadomości: " + e.getMessage());
+                }
+            });
+            sendThread.start();
+
+            //Czekaj na zakończenie wątków
+            receiveThread.join();
+            sendThread.join();
+
+
+        } catch (IOException | InterruptedException e) {
             System.out.println("Błąd klienta: " + e.getMessage());
         }
-    }
-    private void startGame() {
-        PauseTransition delay = new PauseTransition(Duration.seconds(2));
-        delay.setOnFinished(event -> {
-            // Po zakończeniu opóźnienia przechodzimy do gry
-            game = new GameGUI();
-            Scene gamescene = new Scene(game, 800, 600);
-            primaryStage.setScene(gamescene);
-        });
-        delay.play();
     }
 
     public static void main(String[] args) {

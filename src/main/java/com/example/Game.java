@@ -70,30 +70,34 @@ public class Game {
                     } else if (action.equals("wait")) {
                         System.out.println("ok"); // Wyślij odpowiedź do serwera
                         System.out.flush();
+
                         // Przejdź do następnego gracza
                         queue = (queue + 1) % numberOfPlayers;
                         
                     } else if (action.equals("show")) {
-                        //System.out.println("ok");
-                    // Tworzenie reprezentacji stanu planszy
-                    List<Pawn> get = players[queue].getpawns();
-                    StringBuilder boardState = new StringBuilder("Pionki: ");
-                    for (Pawn pawn : get) {
-                        boardState.append(pawn.getX())
-                                .append(" ")
-                                .append(pawn.getY())
-                                .append(" ")
-                                .append(pawn.getColor())
-                                .append(", ");
-                    }
-                    // Usuwamy ostatni przecinek i spację
-                    if (boardState.length() > 8) {
-                        boardState.setLength(boardState.length() - 2);
-                    }
-                    // Wyślij cały stan do serwera
-                    System.out.println(boardState.toString());
-                    System.out.flush(); 
-                    }
+                        // Tworzenie reprezentacji stanu planszy
+                        List<Pawn> get = players[queue].getpawns();
+                        StringBuilder boardState = new StringBuilder("Pionki: ");
+                        for (Pawn pawn : get) {
+                            boardState.append(pawn.getX())
+                                    .append(" ")
+                                    .append(pawn.getY())
+                                    .append(" ")
+                                    .append(pawn.getColor())
+                                    .append(", ");
+                        }
+                        // Usuwamy ostatni przecinek i spację
+                        if (boardState.length() > 8) {
+                            boardState.setLength(boardState.length() - 2);
+                        }
+                        // Wyślij cały stan do serwera
+                        System.out.println(boardState.toString());
+                        System.out.flush(); 
+                        }
+                    else if (action.equals("update")) {
+                        board.printAllCoordinates();
+                        System.out.flush();
+                    }    
                     else {
                         System.out.println("error"); // Błędne polecenie
                         System.out.flush();
