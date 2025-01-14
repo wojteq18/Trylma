@@ -3,6 +3,7 @@ package com.example;
 import java.util.HashMap;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -14,6 +15,15 @@ public class BoardCreator {
     private Client client;
 
         public void create(VBox root, HashMap<Position, Circle> circles) {
+            HBox upper = new HBox(10);
+            Button button = new Button("Wait");
+            upper.getChildren().add(button);
+            upper.setAlignment(Pos.CENTER);
+            root.getChildren().add(upper);
+            button.setOnAction(e ->{
+                String wait = "wait";
+                sendMove(wait);
+            });
 
                 for (int i = 0; i <= 3; i++) {
                     HBox hbox = new HBox(10);
