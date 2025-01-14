@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import java.util.Scanner;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -19,6 +18,7 @@ public class Client extends Application {
     private Stage primaryStage;
     private boolean isReady = false;
     private String coordinates = "";
+    private String messegToSend = "";
 
     @Override
     public void start(Stage primaryStage) {
@@ -73,17 +73,17 @@ public class Client extends Application {
 
             //Wątek do wysyłania wiadomości do serwera
             Thread sendThread = new Thread(() -> {
-                Scanner scanner = new Scanner(System.in);
                 try {
                     boolean isRunning = true;
                     while (isRunning) { 
-                        String message = scanner.nextLine();
-                        output.println(message);
-                        if ("exit".equalsIgnoreCase(message)) {
-                            isRunning = false;
-                        } 
+                        synchronized(this) {
+                            if (!messegToSend.isEmpty()) {
+                                output.println(messegToSend);
+                                output.flush();
+                                messegToSend = "";
+                            }
+                        }
                     }
-                    scanner.close();
                     socket.close();
                 } catch (IOException e) {
                     System.out.println("Błąd podczas wysyłania wiadomości: " + e.getMessage());
@@ -103,11 +103,19 @@ public class Client extends Application {
     private void startGame() {
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
         delay.setOnFinished(event -> {
-            game = new GameGUI();
+            game = new GameGUI(this);
             Scene gameScene = new Scene(game, 800, 600);
             primaryStage.setScene(gameScene);
         });
         delay.play();
+    }
+
+    public synchronized  void setMessageToSend(String message) {
+        this.messegToSend = message;
+    }
+
+    public synchronized String getCoordinates() {
+        return coordinates;
     }
 
     public static void main(String[] args) {

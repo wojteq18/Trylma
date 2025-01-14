@@ -1,15 +1,18 @@
 package com.example;
 
+import java.util.HashMap;
+
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
-import java.util.*;
 
 public class BoardCreator {
+    int[] firstClickCoords = new int[2];
+    boolean[] isFirstClick = {true};
+    private Client client;
+
         public void create(VBox root, HashMap<Position, Circle> circles) {
 
                 for (int i = 0; i <= 3; i++) {
@@ -50,10 +53,36 @@ public class BoardCreator {
             circle.setStroke(strokeColor);
             circle.setFill(fillColor);
             circles.put(new Position(i, j), circle);
+
+            //tablica przechowujaca wspolrzedne pierwszego klikniecia
             circle.setOnMouseClicked(e ->{
-                System.out.println("klik" + i + " " + j);
+                if (isFirstClick[0] == true) {
+                    firstClickCoords[0] = i;
+                    firstClickCoords[1] = j;
+                    isFirstClick[0] = false;
+                } else {
+                    String move = String.format("move %d %d %d %d", firstClickCoords[0], firstClickCoords[1], i, j);
+                    sendMove(move);
+                    isFirstClick[0] = true;
+                }
             });
             hbox.getChildren().add(circle);
             hbox.setAlignment(Pos.CENTER);
+        }
+
+        public String getMessage(String message) {
+            return message;
+        }
+
+        public void setClient(Client client) {
+            this.client = client;
+        }
+
+        public void sendMove(String move) {
+            if (client != null) {
+                client.setMessageToSend(move);
+            } else {
+                System.out.println("Client is null");
+            }
         }
 }
