@@ -11,7 +11,6 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
     current_player: Arc<Mutex<usize>>, //indeks aktualnego gracza
     java_stdin: Arc<Mutex<std::process::ChildStdin>>, //wspoldzielony strumien wejsciowy
     java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>, //wspoldzielony obiekt do odczytu odpowiedzi od javy
-    coordinates: Arc<Mutex<String>>,
 ) {
     let reader_stream = stream.try_clone().expect("Błąd klonowania strumienia");
     let mut writer_stream = stream;
@@ -218,7 +217,6 @@ fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy oso
     current_player: Arc<Mutex<usize>>,
     java_stdin: Arc<Mutex<std::process::ChildStdin>>,
     java_reader: Arc<Mutex<BufReader<std::process::ChildStdout>>>,
-    coordinates: Arc<Mutex<String>>,
 ) {
     let clients = Arc::new(Mutex::new(clients));
 
@@ -230,10 +228,9 @@ fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy oso
             let current_player = Arc::clone(&current_player);
             let java_stdin = Arc::clone(&java_stdin);
             let java_reader = Arc::clone(&java_reader);
-            let coordinates = Arc::clone(&coordinates);
 
             thread::spawn(move || {
-                handle_client(client, clients, current_player, java_stdin, java_reader, Arc::clone(&coordinates));
+                handle_client(client, clients, current_player, java_stdin, java_reader);
             });
         }
     }
@@ -292,7 +289,7 @@ fn main() -> std::io::Result<()> {
 
     let current_player = Arc::new(Mutex::new(0));
 
-    start_game(clients, current_player, java_stdin, java_reader, coordinates);
+    start_game(clients, current_player, java_stdin, java_reader);
 
     run_server_loop();
 

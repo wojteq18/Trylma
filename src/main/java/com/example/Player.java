@@ -104,10 +104,6 @@ public class Player{
                             multiMove(x, y);
                             oneMove(x, y);
     
-                            /*for (Move move : pawn.getMoves()) {
-                                System.out.println(pawn.getX() + " " + pawn.getY() + " " + move.getX() + " " + move.getY());
-                            }*/
-    
                             if (pawn.checkMove(new Move(newX, newY))){
                                 pawn.clearMoves();
                                 pawn.setX(newX);
