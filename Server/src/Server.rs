@@ -228,9 +228,9 @@ fn main() -> std::io::Result<()> {
 
     let strategy = {
         println!("Podaj numer strategii: ");
-        println!("0. Strategia standardowa");
-        println!("1. Strategia Yin-Yang");
-        println!("2. Strategia Chaos");
+        println!("1. Strategia standardowa");
+        println!("2. Strategia Yin-Yang");
+        println!("3. Strategia Chaos");
         
         let mut strategy = String::new();
         io::stdin().read_line(&mut strategy).expect("Błąd odczytu");
@@ -241,7 +241,7 @@ fn main() -> std::io::Result<()> {
     let listener = initialize_server("127.0.0.1:9999")?;
 
     let (java_stdin, java_reader) = setup_java_process(
-        "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
+        "/home/user/Programowanie/3sem/TP/nowe/Trylma/target/classes", // Nowa ścieżka do klasy Java
         "com.example.Main", // Główna klasa Java
     );
 
