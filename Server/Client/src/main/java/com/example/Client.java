@@ -7,17 +7,22 @@ import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Scanner;
 
+import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Client extends Application {
     private Lobby lobby;
+    private GameGUI game;
+    private Stage primaryStage;
     private boolean isReady = false;
     private String coordinates = "";
 
     @Override
     public void start(Stage primaryStage) {
+        this.primaryStage = primaryStage;
         // Utworzenie lobby
         lobby = new Lobby();
 
@@ -46,6 +51,7 @@ public class Client extends Application {
                     while ((msg = serverInput.readLine()) != null) {
                         if (msg.equals("Wszyscy gracze dołączyli, gra się rozpoczyna!")) {
                             isReady = true;
+                            startGame();
                         }
                         else if (msg.equals("Oczekiwanie na pozostałych graczy...")) {
                             lobby.setWaitingMessage(msg);
@@ -93,6 +99,15 @@ public class Client extends Application {
         } catch (IOException | InterruptedException e) {
             System.out.println("Błąd klienta: " + e.getMessage());
         }
+    }
+    private void startGame() {
+        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        delay.setOnFinished(event -> {
+            game = new GameGUI();
+            Scene gameScene = new Scene(game, 800, 600);
+            primaryStage.setScene(gameScene);
+        });
+        delay.play();
     }
 
     public static void main(String[] args) {

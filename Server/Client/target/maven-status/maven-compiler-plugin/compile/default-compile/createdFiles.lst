@@ -1,3 +1,7 @@
+com/example/BoardCreator.class
 com/example/Lobby.class
-com/example/Client.class
+com/example/MyCircle.class
 com/example/GameGUI.class
+com/example/PawnFiller.class
+com/example/Position.class
+com/example/Client.class

@@ -15,19 +15,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import java.util.*;
 
-public class GameGUI extends VBox{
+public class PawnFiller {
 
-    private HashMap<Position, Circle> circles;
-    private Circle circle;
-    private HBox hbox;
-    public GameGUI(){
-        circles = new HashMap<>();
-        System.out.println("elo");
+    public void fill(VBox root, HashMap<Position, Circle> circles){
 
-        BoardCreator creator = new BoardCreator();
-        creator.create(this, circles);
-
-        PawnFiller filler = new PawnFiller();
-        filler.fill(this, circles);
     }
 }
