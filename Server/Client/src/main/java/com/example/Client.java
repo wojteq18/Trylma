@@ -14,6 +14,7 @@ import javafx.stage.Stage;
 public class Client extends Application {
     private Lobby lobby;
     private boolean isReady = false;
+    private String coordinates = "";
 
     @Override
     public void start(Stage primaryStage) {
@@ -48,6 +49,10 @@ public class Client extends Application {
                         }
                         else if (msg.equals("Oczekiwanie na pozostałych graczy...")) {
                             lobby.setWaitingMessage(msg);
+                        }
+                        else if (msg.startsWith("(")) {
+                            coordinates = msg.trim();
+                            System.out.println("Coordinates: " + coordinates);
                         }
                         if (isReady == true) {
                             System.out.println(msg);
