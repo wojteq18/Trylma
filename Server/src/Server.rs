@@ -92,44 +92,42 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     {
                         let clients_guard = clients.lock().unwrap();
                         *current_player_guard = (*current_player_guard + 1) % clients_guard.len();
-
-                        // Wyślij powiadomienie do następnego gracza
-                        if let Some(next_client) = clients_guard.get(*current_player_guard) {
-                            let mut next_writer = next_client
-                                .try_clone()
-                                .expect("Błąd klonowania TcpStream");
-                            writeln!(next_writer, "Gracz {}: {}", player_index + 1, message)
-                                .expect("Błąd wysyłania powiadomienia do następnego gracza");
-                            writeln!(next_writer, "Twoja kolej!")
-                                .expect("Błąd wysyłania powiadomienia do następnego gracza");
-
-                            let update_coordinates = {
-                                let mut java_stdin_guard = java_stdin.lock().unwrap();
-                                writeln!(java_stdin_guard, "update")
-                                    .expect("Nie udało się wysłać update do procesu Javy");
-
-                                let mut java_reader_guard = java_reader.lock().unwrap();
-                                let mut response = String::new();
-                                java_reader_guard
-                                    .read_line(&mut response)
-                                    .expect("Błąd odczytu z procesu Javy");
-                                response.trim().to_string()
-                            };
-
-                            writeln!(next_writer, "{}", update_coordinates).expect("Błąd wysyłania współrzędnych do klienta");  
+                
+                        // Wyślij powiadomienie do wszystkich klientów
+                        let update_coordinates = {
+                            let mut java_stdin_guard = java_stdin.lock().unwrap();
+                            writeln!(java_stdin_guard, "update")
+                                .expect("Nie udało się wysłać update do procesu Javy");
+                
+                            let mut java_reader_guard = java_reader.lock().unwrap();
+                            let mut response = String::new();
+                            java_reader_guard
+                                .read_line(&mut response)
+                                .expect("Błąd odczytu z procesu Javy");
+                            response.trim().to_string()
+                        };
+                
+                        for (index, client) in clients_guard.iter().enumerate() {
+                            let mut writer = client.try_clone().expect("Błąd klonowania TcpStream");
+                
+                            // Powiadomienie o aktualizacji współrzędnych
+                            writeln!(writer, "{}", update_coordinates)
+                                .expect("Błąd wysyłania współrzędnych do klienta");
+                
+                            // Informacja dla następnego gracza
+                            if index == *current_player_guard {
+                                writeln!(writer, "Twoja kolej!")
+                                    .expect("Błąd wysyłania powiadomienia do następnego gracza");
+                            }
                         }
                     }
-                } else if first_word == "error" || java_response.trim() == "Error" {
+                }
+                 else if first_word == "error" || java_response.trim() == "Error" {
                     writeln!(writer_stream, "Błąd: Powtórz ruch").unwrap();
                 } else if first_word == "Pionki: " || first_word == "Pionki" {
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
-                }
-                //else if java_response.trim().starts_with('(') {
-                  //  writeln!(writer_stream, "{}", java_response.trim()).unwrap();
-                    //continue;
-                //}
-                else {
+                } else {
                     writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!").unwrap();
                 }
             }

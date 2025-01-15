@@ -38,12 +38,11 @@ public class Game {
 
         while (manager.activePlayers(players) > 1) {
             try {
-                if (players[queue].getState() == State.ACTIVE) {
+                command = scanner.nextLine();                    
+                Scanner commandScanner = new Scanner(command);                    
+                action = commandScanner.next();
 
-                    // Oczekiwanie na ruch gracza
-                    command = scanner.nextLine();                    
-                    Scanner commandScanner = new Scanner(command);                    
-                    action = commandScanner.next();
+                if (players[queue].getState() == State.ACTIVE) {
          
                     if (action.equals("move")) {                        
                         x = commandScanner.nextInt();
