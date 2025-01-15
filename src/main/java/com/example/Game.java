@@ -5,27 +5,16 @@ import java.util.Scanner;
 
 import com.example.MoveFactory.MoveHandler;
 import com.example.MoveFactory.MoveHandlerFactory;
+import com.example.strategy.BoardStrategy;
+import com.example.strategy.BoardStrategyFactory;
 
 public class Game {
     String command, action;
     int x, y, newX, newY;
 
     public Game(int length, int numberOfPlayers, int strategy) { //TODO - dodac strategie
-        Board board;
-        switch (strategy) {
-            case 1:
-                board = new FilledBoard(length, numberOfPlayers);
-                break;
-            case 2:
-                board = new YinBoard(length, numberOfPlayers);
-                break;
-            case 3:
-                board = new ChaosBoard(length, numberOfPlayers);
-                break;
-            default:
-                throw new IllegalArgumentException("Invalid strategy: " + strategy);
-        }
-        
+        BoardStrategy boardStrategy = BoardStrategyFactory.getStrategy(strategy);
+        Board board = boardStrategy.createBoard(length, numberOfPlayers);
         //do serwera wysyłamy wszystkie koordynaty na start
         board.printAllCoordinates();
         System.out.flush();

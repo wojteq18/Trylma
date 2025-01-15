@@ -15,8 +15,8 @@ public class PlayerManager{
         switch (numberOfPlayers){
             case 2:
                 players = new Player[2];
-                players[1] = new Player(Colors.BLACK, board, State.ACTIVE);
-                players[0] = new Player(Colors.WHITE, board, State.ACTIVE);
+                players[1] = new Player(Colors.WHITE, board, State.ACTIVE);
+                players[0] = new Player(Colors.BLACK, board, State.ACTIVE);
                 break;
             case 3:
                 players = new Player[3];

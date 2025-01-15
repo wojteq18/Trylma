@@ -77,6 +77,7 @@ public class Client extends Application {
 
             //Wątek do wysyłania wiadomości do serwera
             Thread sendThread = new Thread(() -> {
+                Platform.runLater(() -> game.refresh());                            
                 try {
                     boolean isRunning = true; //zmienione
                     while (isRunning) { 

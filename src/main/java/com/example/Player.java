@@ -69,29 +69,52 @@ public class Player{
             }
         }
     }
-    public boolean doesNotEscape (int x, int y, int newX, int newY){
-        for (Square square : board.getSquares()){
-            if (square.getX() == x && square.getY() == y){
-                for (Pawn pawn : mypawns){
-                    if (pawn.getX() == x && pawn.getY() == y){
-                        if ((square.getColor() == Colors.BLACK && pawn.getColor() == Colors.WHITE) ||
-                        (square.getColor() == Colors.WHITE && pawn.getColor() == Colors.BLACK) ||
-                        (square.getColor() == Colors.YELLOW && pawn.getColor() == Colors.GREEN) ||
-                        (square.getColor() == Colors.GREEN && pawn.getColor() == Colors.YELLOW) ||
-                        (square.getColor() == Colors.BLUE && pawn.getColor() == Colors.RED) ||
-                        (square.getColor() == Colors.RED && pawn.getColor() == Colors.BLUE)){
-                            for (Square newsquare : board.getSquares()){
-                                if (newsquare.getX() == newX && newsquare.getY() == newY){
-                                    if(newsquare.getColor() == square.getColor()){
-                                        return true;
-                                    } else return false;
-                                } //else return false; //nie wykona sie, bo wczesniej sie upewniamy, czy docelowe pole istnieje
-                            }
-                        }
-                    } else return true;
+   public boolean doesNotEscape(int x, int y, int newX, int newY) {
+        Square startSquare = null;
+        for (Square sq : board.getSquares()) {
+            if (sq.getX() == x && sq.getY() == y) {
+                startSquare = sq;
+                break;
+            }
+        }
+        if (startSquare == null) {
+            return true;
+        }
+        Pawn movingPawn = null;
+        for (Pawn p : mypawns) {
+            if (p.getX() == x && p.getY() == y) {
+                movingPawn = p;
+                break;
+            }
+        }
+        if (movingPawn == null) {
+            return true;
+        }
+
+        if ((startSquare.getColor() == Colors.BLACK && movingPawn.getColor() == Colors.WHITE) ||
+            (startSquare.getColor() == Colors.WHITE && movingPawn.getColor() == Colors.BLACK) ||
+            (startSquare.getColor() == Colors.YELLOW && movingPawn.getColor() == Colors.GREEN) ||
+            (startSquare.getColor() == Colors.GREEN && movingPawn.getColor() == Colors.YELLOW) ||
+            (startSquare.getColor() == Colors.BLUE && movingPawn.getColor() == Colors.RED)   ||
+            (startSquare.getColor() == Colors.RED && movingPawn.getColor() == Colors.BLUE))
+        {
+            Square targetSquare = null;
+            for (Square sq : board.getSquares()) {
+                if (sq.getX() == newX && sq.getY() == newY) {
+                    targetSquare = sq;
+                    break;
                 }
-            } //else return false; //nie wykona sie, bo zawsze przed ta funkcja upewniamy się, czy dane pole istnieje
-        } return false; //rowniez raczej sie nie wykona
+            }
+            if (targetSquare != null) {
+                if (targetSquare.getColor() == startSquare.getColor()) {
+                    // Pozostaje w tej samej strefie
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        }
+        return true;
     }
     public int move (int x, int y, int newX, int newY){
         //boolean doneMove = false;
@@ -133,35 +156,43 @@ public class Player{
     
     public void multiMove(int x, int y){
         Pawn pawn = thisPawn(x, y);
+        if (pawn == null) {
+            return; 
+        }
         if((isSquareThere(x, y - 2) && isSquareThere(x, y - 4) && isSquareEmpty(x, y - 4) &&(!isSquareEmpty(x, y - 2)) && doesNotEscape(x, y, x, y - 4))){
-            if (!(pawn.checkMove(new Move(x - 4, y)))){
-                pawn.addMove(new Move(x - 4, y));
-                multiMove(x - 4, y);
+            if (!(pawn.checkMove(new Move(x, y - 4)))){
+                pawn.addMove(new Move(x, y - 4));
+                //multiMove(x, y - 4);
             }
-        } else if(isSquareThere(x, y + 2) && isSquareThere(x, y + 4) && isSquareEmpty(x, y + 4) &&(!isSquareEmpty(x, y + 2)) && doesNotEscape(x, y, x, y + 4)){
-            if (!(pawn.checkMove(new Move(x + 4, y)))){
-                pawn.addMove(new Move(x + 4, y));
-                multiMove(x + 4, y);
+        } 
+         if(isSquareThere(x, y + 2) && isSquareThere(x, y + 4) && isSquareEmpty(x, y + 4) &&(!isSquareEmpty(x, y + 2)) && doesNotEscape(x, y, x, y + 4)){
+            if (!(pawn.checkMove(new Move(x, y + 4)))){
+                pawn.addMove(new Move(x, y + 4));
+                //multiMove(x, y + 4);
             }
-        } else if (isSquareThere(x - 1, y - 1) && isSquareThere(x - 2, y - 2) && isSquareEmpty(x - 2, y - 2) &&(!isSquareEmpty(x - 1, y - 1)) && doesNotEscape(x, y, x - 2, y - 2)){
+        } 
+         if (isSquareThere(x - 1, y - 1) && isSquareThere(x - 2, y - 2) && isSquareEmpty(x - 2, y - 2) &&(!isSquareEmpty(x - 1, y - 1)) && doesNotEscape(x, y, x - 2, y - 2)){
             if (!(pawn.checkMove(new Move(x - 2, y - 2)))){
                 pawn.addMove(new Move(x - 2, y - 2));
-                multiMove(x - 2, y - 2);
+                //multiMove(x - 2, y - 2);
             }
-        } else if (isSquareThere(x + 1, y + 1) && isSquareThere(x + 2, y + 2) && isSquareEmpty(x + 2, y + 2) &&(!isSquareEmpty(x + 1, y + 1)) && doesNotEscape(x, y, x + 2, y + 2)){
+        } 
+         if (isSquareThere(x + 1, y + 1) && isSquareThere(x + 2, y + 2) && isSquareEmpty(x + 2, y + 2) &&(!isSquareEmpty(x + 1, y + 1)) && doesNotEscape(x, y, x + 2, y + 2)){
             if (!(pawn.checkMove(new Move(x + 2, y + 2)))){
                 pawn.addMove(new Move(x + 2, y + 2));
-                multiMove(x + 2, y + 2);
+                //multiMove(x + 2, y + 2);
             }
-        } else if (isSquareThere(x - 1, y + 1) && isSquareThere(x - 2, y + 2) && isSquareEmpty(x - 2, y + 2) && (!isSquareEmpty(x - 1, y + 1)) && doesNotEscape(x, y, x - 2, y + 2)){
+        } 
+         if (isSquareThere(x - 1, y + 1) && isSquareThere(x - 2, y + 2) && isSquareEmpty(x - 2, y + 2) && (!isSquareEmpty(x - 1, y + 1)) && doesNotEscape(x, y, x - 2, y + 2)){
             if (!(pawn.checkMove(new Move(x - 2, y + 2)))){
                 pawn.addMove(new Move(x - 2, y + 2));
-                multiMove(x - 2, y + 2);
+                //multiMove(x - 2, y + 2);
             }
-        } else if (isSquareThere(x + 1, y - 1) && isSquareThere(x + 2, y - 2) && isSquareEmpty(x + 2, y - 2) && (!isSquareEmpty(x + 1, y - 1)) && doesNotEscape(x, y, x + 2, y - 2)){
+        } 
+         if (isSquareThere(x + 1, y - 1) && isSquareThere(x + 2, y - 2) && isSquareEmpty(x + 2, y - 2) && (!isSquareEmpty(x + 1, y - 1)) && doesNotEscape(x, y, x + 2, y - 2)){
             if (!(pawn.checkMove(new Move(x + 2, y - 2)))){
                 pawn.addMove(new Move(x + 2, y - 2));
-                multiMove(x + 2, y - 2);
+                //multiMove(x + 2, y - 2);
             }
         }
     }
@@ -175,11 +206,15 @@ public class Player{
     }
     public void oneMove(int x, int y){
         Pawn pawn = thisPawn(x, y);
+
+        if (pawn == null) {
+            return; 
+        }
         if (isSquareThere(x, y + 2) && isSquareEmpty(x, y + 2) && doesNotEscape(x, y, x, y + 2)){
             pawn.addMove(new Move(x, y + 2));
         }
         if (isSquareThere(x, y - 2) && isSquareEmpty(x, y - 2) && doesNotEscape(x, y, x, y - 2)){
-            pawn.addMove(new Move(x - 2, y));
+            pawn.addMove(new Move(x, y - 2));
         }
         if (isSquareThere(x - 1, y - 1) && isSquareEmpty(x - 1, y - 1) && doesNotEscape(x, y, x - 1, y - 1)){
             pawn.addMove(new Move(x - 1, y - 1));

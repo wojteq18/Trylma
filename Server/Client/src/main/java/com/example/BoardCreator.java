@@ -75,6 +75,7 @@ public class BoardCreator {
             //tablica przechowujaca wspolrzedne pierwszego klikniecia
             circle.setOnMouseClicked(e ->{
                 if (isFirstClick[0] == true) {
+                    circle.setStroke(Color.PURPLE);
                     firstClickCoords[0] = i;
                     firstClickCoords[1] = j;
                     isFirstClick[0] = false;
