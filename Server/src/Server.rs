@@ -274,7 +274,7 @@ fn main() -> std::io::Result<()> {
     let listener = initialize_server("127.0.0.1:9999")?;
 
     let (java_stdin, java_reader) = setup_java_process(
-        "/home/siemoniere/Trylma/Server/src/Trylma/target/classes", // Nowa ścieżka do klasy Java
+        "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
         "com.example.Main", // Główna klasa Java
     );
 

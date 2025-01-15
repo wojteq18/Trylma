@@ -1,5 +1,6 @@
 @startuml
 
+package codes.trylma {
     class Colors {
         WHITE
         RED
@@ -138,7 +139,6 @@
         +static void main(String[] args)
     }
 
-
     interface MoveHandler {
         +void handle()
         +boolean shouldSwitchPlayer()
@@ -183,28 +183,28 @@
         +boolean shouldSwitchPlayer()
     }
 
-
-PlayerManager --> Player
-Player --> Pawn
-Player --> Board
-Player --> Colors
-Player --> State
-Board --> Square
-Board --> Pawn
-FilledBoard --> Board
-YinBoard --> FilledBoard
-ChaosBoard --> Board
-Game --> PlayerManager
-Game --> Player
-Game --> Board
-Game --> MoveHandlerFactory
-MoveHandlerFactory --> MoveHandler
-MoveHandlerFactory --> OkMoveHandler
-MoveHandlerFactory --> ForbiddenMove
-MoveHandlerFactory --> EscapeMove
-MoveHandlerFactory --> NotEmptyMove
-MoveHandlerFactory --> NotExistMove
-MoveHandlerFactory --> NoPawnMove
-MoveHandlerFactory --> UnknownError
+    PlayerManager --> Player
+    Player --> Pawn
+    Player --> Board
+    Player --> Colors
+    Player --> State
+    Board --> Square
+    Board --> Pawn
+    FilledBoard --> Board
+    YinBoard --> FilledBoard
+    ChaosBoard --> Board
+    Game --> PlayerManager
+    Game --> Player
+    Game --> Board
+    Game --> MoveHandlerFactory
+    MoveHandlerFactory --> MoveHandler
+    MoveHandlerFactory --> OkMoveHandler
+    MoveHandlerFactory --> ForbiddenMove
+    MoveHandlerFactory --> EscapeMove
+    MoveHandlerFactory --> NotEmptyMove
+    MoveHandlerFactory --> NotExistMove
+    MoveHandlerFactory --> NoPawnMove
+    MoveHandlerFactory --> UnknownError
+}
 
 @enduml
