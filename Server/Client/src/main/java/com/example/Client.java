@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-
+import javafx.application.Platform;
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -25,6 +25,8 @@ public class Client extends Application {
         this.primaryStage = primaryStage;
         // Utworzenie lobby
         lobby = new Lobby();
+        game = new GameGUI(this);
+
 
         // Konfiguracja sceny i okna
         Scene scene = new Scene(lobby, 400, 200);
@@ -58,6 +60,7 @@ public class Client extends Application {
                         }
                         else if (msg.startsWith("(")) {
                             coordinates = msg.trim();
+                            Platform.runLater(() -> game.refresh());                            
                             System.out.println("Coordinates: " + coordinates);
                         }
                         if (isReady == true) {
@@ -103,7 +106,6 @@ public class Client extends Application {
     private void startGame() {
         PauseTransition delay = new PauseTransition(Duration.seconds(2));
         delay.setOnFinished(event -> {
-            game = new GameGUI(this);
             Scene gameScene = new Scene(game, 800, 600);
             primaryStage.setScene(gameScene);
         });

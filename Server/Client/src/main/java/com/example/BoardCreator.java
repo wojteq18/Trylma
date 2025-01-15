@@ -1,7 +1,10 @@
 package com.example;
 
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.layout.HBox;
@@ -9,12 +12,15 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+
 public class BoardCreator {
     int[] firstClickCoords = new int[2];
     boolean[] isFirstClick = {true};
     private Client client;
 
         public void create(VBox root, HashMap<Position, Circle> circles) {
+            Platform.runLater(() -> {
+            root.getChildren().clear();
             HBox upper = new HBox(10);
             Button button = new Button("Wait");
             upper.getChildren().add(button);
@@ -56,6 +62,8 @@ public class BoardCreator {
                     count ++;
                 }
             root.setAlignment(Pos.CENTER);
+            if (client != null) draw(circles, client);
+        });
         }
 
         public void createRow(HBox hbox, Color fillColor, Color strokeColor, int i, int j, HashMap<Position, Circle> circles) {
@@ -95,4 +103,41 @@ public class BoardCreator {
                 System.out.println("Client is null");
             }
         }
+        public void draw(HashMap<Position, Circle> circles, Client client){
+            String message = client.getCoordinates();
+
+            Pattern pattern = Pattern.compile("\\((-?\\d+),\\s*(-?\\d+),\\s*(\\w+)\\)");
+            Matcher matcher = pattern.matcher(message);
+            while (matcher.find()) {
+                int x = Integer.parseInt(matcher.group(1));
+                int y = Integer.parseInt(matcher.group(2));
+                String color = matcher.group(3);
+                Circle circle = circles.get(new Position(x, y));
+                if(circle != null){
+                    switch (color) {
+                        case "WHITE":
+                            circle.setFill(Color.WHITE);
+                            break;
+                        case "BLACK":
+                            circle.setFill(Color.BLACK);
+                            break;
+                        case "YELLOW":
+                            circle.setFill(Color.YELLOW);
+                            break;
+                        case "GREEN":
+                            circle.setFill(Color.GREEN);
+                            break;
+                        case "BLUE":
+                            circle.setFill(Color.BLUE);
+                            break;
+                        case "RED":
+                            circle.setFill(Color.RED);
+                            break;
+                        default:
+                            break;
+                    }   
+                }
+            }
+        }
+
 }
