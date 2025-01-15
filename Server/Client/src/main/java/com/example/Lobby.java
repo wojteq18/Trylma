@@ -1,7 +1,9 @@
 package com.example;
 
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -10,6 +12,9 @@ import javafx.scene.text.FontWeight;
 public class Lobby extends VBox {
     private Label waitingLabel;
     private Label lobbyLabel;
+    private TextField nicknameField;
+    private Button sendButton;
+    private String nickname;
 
     public Lobby() {
         // Tworzenie etykiet z tekstem
@@ -21,6 +26,22 @@ public class Lobby extends VBox {
         lobbyLabel.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
         lobbyLabel.setTextFill(Color.DARKGREEN);
 
+        // Pole tekstowe do wpisywania nicku
+        nicknameField = new TextField();
+        nicknameField.setPromptText("Wpisz swój nick");
+        nicknameField.setMaxWidth(200);
+
+        // Guzik do zatwierdzania nicku
+        sendButton = new Button("Send");
+        sendButton.setOnAction(e -> {
+            nickname = nicknameField.getText();
+            if (!nickname.isEmpty()) {
+                lobbyLabel.setText("Twój nick: " + nickname);
+            } else {
+                lobbyLabel.setText("Nick nie może być pusty. Wpisz swój nick.");
+            }
+        });
+
         // Ustawienia układu
         this.setSpacing(20); // Większy odstęp między elementami
         this.setAlignment(Pos.CENTER); // Wyśrodkowanie elementów w VBox
@@ -31,8 +52,8 @@ public class Lobby extends VBox {
                 + "-fx-border-radius: 10; "
                 + "-fx-background-radius: 10;");
 
-        // Dodanie etykiet do VBox
-        this.getChildren().addAll(waitingLabel, lobbyLabel);
+        // Dodanie elementów do VBox
+        this.getChildren().addAll(waitingLabel, lobbyLabel, nicknameField, sendButton);
     }
 
     public void setWaitingMessage(String message) {
@@ -41,5 +62,9 @@ public class Lobby extends VBox {
 
     public void setLobbyMessage(String message) {
         lobbyLabel.setText(message);
+    }
+
+    public String getNickname() {
+        return nickname;
     }
 }

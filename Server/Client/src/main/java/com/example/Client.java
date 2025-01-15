@@ -5,9 +5,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
-import javafx.application.Platform;
+
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -77,7 +78,7 @@ public class Client extends Application {
             //Wątek do wysyłania wiadomości do serwera
             Thread sendThread = new Thread(() -> {
                 try {
-                    boolean isRunning = true;
+                    boolean isRunning = true; //zmienione
                     while (isRunning) { 
                         synchronized(this) {
                             if (!messegToSend.isEmpty()) {
@@ -104,10 +105,11 @@ public class Client extends Application {
         }
     }
     private void startGame() {
-        PauseTransition delay = new PauseTransition(Duration.seconds(2));
+        PauseTransition delay = new PauseTransition(Duration.seconds(5));
         delay.setOnFinished(event -> {
             Scene gameScene = new Scene(game, 800, 600);
             primaryStage.setScene(gameScene);
+            primaryStage.setTitle(lobby.getNickname());
         });
         delay.play();
     }

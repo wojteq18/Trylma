@@ -46,14 +46,14 @@ public class Board {
         }
         count = 0;
         for (int i = length - 1; i <= 2*length - 3; i++){
-            for (int j = 2 * i + count; j <= 2 * i + 6 + 3 * count; j = j + 2){
+            for (int j = 2 * i + count - 2; j <= 2 * i + 6 + 3 * count -2; j = j + 2){
                 squares.add(new Square(i, j, Colors.YELLOW, true));
             }
             count -=1;
         }
         count = 0;
         for (int i = length - 1; i <= 2*length - 3; i++){
-            for (int j = -(2 * i + 6 + 3 * count); j <= -(2 * i + count); j = j + 2){
+            for (int j = -(2 * i + 6 + 3 * count) + 2; j <= -(2 * i + count) + 2; j = j + 2){
                 squares.add(new Square(i, j, Colors.RED, true));
             }
             count -=1;

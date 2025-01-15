@@ -4,6 +4,10 @@ use std::sync::{Arc, Mutex};
 use std::thread;
 use std::process::{Command, Stdio};
 use std::io;
+use rand::seq::index;
+use rand_mt::Mt64;
+use rand::{Rng, SeedableRng};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje je do procesu javy, odbiera odpowiedz od javy, przekazuje ja do klienta
     stream: TcpStream, //reprezentuje polaczenie z jednym klientem, jest to gniazdo TCP
@@ -79,11 +83,6 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                 
                 println!("Teraz: {}", java_response);
                 writeln!(writer_stream, "{}", java_response.trim()).unwrap();
-
-                /*{
-                    let mut coordinates_guard = coordinates.lock().unwrap();
-                    *coordinates_guard = java_response.trim().to_string(); // Zakładamy, że `java_response` zawiera nowe coordinates
-                }*/
 
                 let first_word = java_response.trim().split_whitespace().next().unwrap_or("");
 
@@ -180,7 +179,7 @@ fn setup_java_process( //uruchamia proces javy
     return (java_stdin, java_reader)
 }
 
-fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
+fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str, a: usize) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
     let mut clients: Vec<TcpStream> = Vec::new();
     while clients.len() < max_players {    
         match listener.accept() {
@@ -199,6 +198,7 @@ fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str)
 
     for client in &mut clients {
         writeln!(client, "Wszyscy gracze dołączyli, gra się rozpoczyna!").expect("Błąd wysyłania wiadomości do klienta");
+        writeln!(client, "Zaczyna gracz: {}", a + 1).expect("Błąd wysyłania informacji o rozpoczęciu gry");
         writeln!(client, "{}", coordinates).expect("Błąd wysyłania współrzędnych do klienta");
     }
     clients
@@ -240,7 +240,17 @@ fn run_server_loop() { //utrzymuje dzialanie serwera
     }
 }
 
+fn generate_random_seed() -> u64 {
+    let seed = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Błąd uzyskiwania czasu")
+        .as_secs();
+    return seed;
+}
+
 fn main() -> std::io::Result<()> {
+    let seed = generate_random_seed();
+    let mut rng = Mt64::seed_from_u64(seed);
     let max_players = {
         println!("Podaj ilość graczy: ");
         let mut max_players = String::new();
@@ -282,10 +292,10 @@ fn main() -> std::io::Result<()> {
         *coordinates_guard = response.trim().to_string();
     }
 
-    
-    let clients = accept_clients(&listener, max_players, &coordinates.lock().unwrap());
+    let a = rng.gen_range(0..max_players);
+    let clients = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a);
 
-    let current_player = Arc::new(Mutex::new(0));
+    let current_player = Arc::new(Mutex::new(a));
 
     start_game(clients, current_player, java_stdin, java_reader);
 
