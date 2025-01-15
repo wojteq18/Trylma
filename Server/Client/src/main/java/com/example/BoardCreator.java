@@ -21,8 +21,8 @@ public class BoardCreator {
             upper.setAlignment(Pos.CENTER);
             root.getChildren().add(upper);
             button.setOnAction(e ->{
-                String wait = "wait";
-                sendMove(wait);
+                    String wait = "wait";
+                    sendMove(wait);
             });
 
                 for (int i = 0; i <= 3; i++) {

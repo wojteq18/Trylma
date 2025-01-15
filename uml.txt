@@ -1,0 +1,210 @@
+@startuml
+
+    class Colors {
+        WHITE
+        RED
+        GREEN
+        BLACK
+        BLUE
+        YELLOW
+        NULL
+    }
+
+    class State {
+        ACTIVE
+        INACTIVE
+    }
+
+    class Square {
+        -int x
+        -int y
+        -Colors color
+        -boolean isEmpty
+        +Square(int x, int y, Colors color, boolean isEmpty)
+        +int getX()
+        +int getY()
+        +Colors getColor()
+        +boolean getStatus()
+        +void setStatus(boolean isEmpty)
+        +void setColor(Colors color)
+    }
+
+    class Pawn {
+        -int x
+        -int y
+        -Colors color
+        -Set<Move> moves
+        +Pawn(int x, int y, Colors color)
+        +int getX()
+        +int getY()
+        +Colors getColor()
+        +void setX(int x)
+        +void setY(int y)
+        +void addMove(Move move)
+        +void removeMove(Move move)
+        +boolean checkMove(Move move)
+        +void clearMoves()
+        +Set<Move> getMoves()
+    }
+
+    class Move {
+        -int x
+        -int y
+        +Move(int x, int y)
+        +int getX()
+        +int getY()
+        +boolean equals(Object obj)
+        +int hashCode()
+    }
+
+    class Board {
+        -List<Square> squares
+        -List<Pawn> pawns
+        -int length
+        +Board(int length)
+        +int getLength()
+        +void createBoard(int length)
+        +List<Square> getSquares()
+        +int amountOfSquares()
+        +List<Pawn> getPawns()
+        +void printAllCoordinates()
+    }
+
+    class FilledBoard extends Board {
+        +FilledBoard(int length, int numberOfPlayers)
+        +void fillBoard(int length, int numberOfPlayers)
+        +void setPawnOn(Colors color, List<Square> squares, List<Pawn> pawns)
+        +void printAllCoordinates()
+    }
+
+    class YinBoard extends FilledBoard {
+        +YinBoard(int length, int numberOfPlayers)
+        +void yinSwitch()
+        +void printAllCoordinates()
+    }
+
+    class ChaosBoard extends Board {
+        +ChaosBoard(int length, int numberOfPlayers)
+        +void createChaos(int numberOfPlayers)
+        +void setPawn(Colors color)
+        +void changeSquareColor(Colors start, Colors end)
+        +void printAllCoordinates()
+    }
+
+    class Player {
+        -Colors color
+        -Board board
+        -List<Pawn> mypawns
+        -State state
+        +Player(Colors color, Board board, State state)
+        +void setState(State state)
+        +State getState()
+        +Colors getColor()
+        +void setPawns()
+        +List<Pawn> getpawns()
+        +boolean isSquareThere(int x, int y)
+        +boolean isPawnThere(int x, int y)
+        +boolean isSquareEmpty(int x, int y)
+        +void setSquareStatus(int x, int y, boolean isEmpty)
+        +boolean doesNotEscape(int x, int y, int newX, int newY)
+        +int move(int x, int y, int newX, int newY)
+        +void multiMove(int x, int y)
+        +Pawn thisPawn(int x, int y)
+        +void oneMove(int x, int y)
+        +void hasWon()
+        +boolean checkWin(Colors color)
+        +void hasWonTest()
+    }
+
+    class PlayerManager {
+        -Player[] players
+        +PlayerManager(int numberOfPlayers, Board board)
+        +Player[] getPlayers()
+        +void createPlayers(int numberOfPlayers, Board board)
+        +int activePlayers(Player[] players)
+    }
+
+    class Game {
+        -String command
+        -String action
+        -int x
+        -int y
+        -int newX
+        -int newY
+        +Game(int length, int numberOfPlayers, int strategy)
+    }
+
+    class Main {
+        +static void main(String[] args)
+    }
+
+
+    interface MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class MoveHandlerFactory {
+        +static MoveHandler getHandler(int moveResult)
+    }
+
+    class OkMoveHandler implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class ForbiddenMove implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class EscapeMove implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class NotEmptyMove implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class NotExistMove implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class NoPawnMove implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+    class UnknownError implements MoveHandler {
+        +void handle()
+        +boolean shouldSwitchPlayer()
+    }
+
+
+PlayerManager --> Player
+Player --> Pawn
+Player --> Board
+Player --> Colors
+Player --> State
+Board --> Square
+Board --> Pawn
+FilledBoard --> Board
+YinBoard --> FilledBoard
+ChaosBoard --> Board
+Game --> PlayerManager
+Game --> Player
+Game --> Board
+Game --> MoveHandlerFactory
+MoveHandlerFactory --> MoveHandler
+MoveHandlerFactory --> OkMoveHandler
+MoveHandlerFactory --> ForbiddenMove
+MoveHandlerFactory --> EscapeMove
+MoveHandlerFactory --> NotEmptyMove
+MoveHandlerFactory --> NotExistMove
+MoveHandlerFactory --> NoPawnMove
+MoveHandlerFactory --> UnknownError
+
+@enduml
