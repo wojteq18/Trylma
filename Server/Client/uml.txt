@@ -1,0 +1,66 @@
+@startuml
+
+    class BoardCreator {
+        -int[] firstClickCoords
+        -boolean[] isFirstClick
+        -Client client
+        +void create(Object root, HashMap<Position, Object> circles)
+        +void createRow(Object hbox, Object fillColor, Object strokeColor, int i, int j, HashMap<Position, Object> circles)
+        +String getMessage(String message)
+        +void setClient(Client client)
+        +void sendMove(String move)
+        +void draw(HashMap<Position, Object> circles, Client client)
+    }
+
+    class Client {
+        -Lobby lobby
+        -GameGUI game
+        -Object primaryStage
+        -boolean isReady
+        -String coordinates
+        -String messegToSend
+        +void start(Object primaryStage)
+        -void startClient()
+        -void startGame()
+        +synchronized void setMessageToSend(String message)
+        +synchronized String getCoordinates()
+        +static void main(String[] args)
+    }
+
+    class GameGUI {
+        -HashMap<Position, Object> circles
+        -Object circle
+        -Object hbox
+        -BoardCreator creator
+        +GameGUI(Client client)
+        +void refresh()
+    }
+
+    class Lobby {
+        -Object waitingLabel
+        -Object lobbyLabel
+        -Object nicknameField
+        -Object sendButton
+        -String nickname
+        +Lobby()
+        +void setWaitingMessage(String message)
+        +void setLobbyMessage(String message)
+        +String getNickname()
+    }
+
+    class Position {
+        -int x
+        -int y
+        +Position(int x, int y)
+        +boolean equals(Object o)
+        +int hashCode()
+    }
+
+    Client --> Lobby
+    Client --> GameGUI
+    GameGUI --> BoardCreator
+    BoardCreator --> Client
+    BoardCreator --> Position
+    Lobby --> Position
+
+@enduml
