@@ -101,19 +101,4 @@ public class ChaosBoard extends Board {
             }
         }
     }
-
-    /**
-     * Prints the coordinates and colors of all pawns on the board to the console.
-     * The output includes each pawn's position and color in a readable format.
-     */
-    public void printAllCoordinates() {
-        StringBuilder sb = new StringBuilder();
-        for (Pawn pawn : pawns) {
-            sb.append("(").append(pawn.getX()).append(", ").append(pawn.getY()).append(", ").append(pawn.getColor()).append("), ");
-        }
-        if (!pawns.isEmpty()) {
-            sb.setLength(sb.length() - 2); // Remove the last comma and space
-        }
-        System.out.println(sb);
-    }
 }

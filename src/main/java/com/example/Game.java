@@ -68,7 +68,7 @@ public class Game {
 
                         try {
                             int moveResult = players[queue].move(x, y, newX, newY);
-                            MoveHandler handler = MoveHandlerFactory.getHandler(moveResult);
+                            MoveHandler handler = MoveHandlerFactory.getHandler(moveResult); //fabryka dla wiadości o ruchu
                             handler.handle();
 
                             if (handler.shouldSwitchPlayer()) {
