@@ -14,6 +14,7 @@ public class Lobby extends VBox {
     private Label lobbyLabel;
     private TextField nicknameField;
     private Button sendButton;
+    private Button replayButton;
     private String nickname;
 
     public Lobby() {
@@ -42,6 +43,12 @@ public class Lobby extends VBox {
             }
         });
 
+        //guzik do obejrzenia powtórki
+        replayButton = new Button("Replay");
+        replayButton.setOnAction(e -> {
+            //tutaj będzie kod do powtórki
+        });
+
         // Ustawienia układu
         this.setSpacing(20); // Większy odstęp między elementami
         this.setAlignment(Pos.CENTER); // Wyśrodkowanie elementów w VBox
@@ -53,7 +60,7 @@ public class Lobby extends VBox {
                 + "-fx-background-radius: 10;");
 
         // Dodanie elementów do VBox
-        this.getChildren().addAll(waitingLabel, lobbyLabel, nicknameField, sendButton);
+        this.getChildren().addAll(waitingLabel, lobbyLabel, nicknameField, sendButton, replayButton);
     }
 
     public void setWaitingMessage(String message) {

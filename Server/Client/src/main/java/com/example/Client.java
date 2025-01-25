@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 import javafx.animation.PauseTransition;
 import javafx.application.Application;
@@ -20,6 +22,7 @@ public class Client extends Application {
     private boolean isReady = false;
     private String coordinates = "";
     private String messegToSend = "";
+    private List<String> allCoordinates = new ArrayList<>();
 
     @Override
     public void start(Stage primaryStage) {
@@ -61,6 +64,7 @@ public class Client extends Application {
                         }
                         else if (msg.startsWith("(")) {
                             coordinates = msg.trim();
+                            allCoordinates.add(coordinates);
                             Platform.runLater(() -> game.refresh());                            
                             System.out.println("Coordinates: " + coordinates);
                         }
@@ -121,6 +125,10 @@ public class Client extends Application {
 
     public synchronized String getCoordinates() {
         return coordinates;
+    }
+
+    public synchronized List<String> getAllCoordinates() {
+        return allCoordinates;
     }
 
     public static void main(String[] args) {

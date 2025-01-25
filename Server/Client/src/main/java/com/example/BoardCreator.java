@@ -7,28 +7,41 @@ import java.util.regex.Pattern;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
-
 public class BoardCreator {
     int[] firstClickCoords = new int[2];
     boolean[] isFirstClick = {true};
     private Client client;
+    private TextField saveField;
 
         public void create(VBox root, HashMap<Position, Circle> circles) {
             Platform.runLater(() -> {
             root.getChildren().clear();
             HBox upper = new HBox(10);
+            HBox lower = new HBox(10);
             Button button = new Button("Wait");
+            Button button2 = new Button("Save");            
             upper.getChildren().add(button);
+            lower.getChildren().add(button2);
             upper.setAlignment(Pos.CENTER);
+            lower.setAlignment(Pos.BOTTOM_RIGHT);
             root.getChildren().add(upper);
+            root.getChildren().add(lower);
             button.setOnAction(e ->{
                     String wait = "wait";
                     sendMove(wait);
+            });
+            
+            button2.setOnAction(e -> {
+                saveField = new TextField();
+                saveField.setPromptText("Enter save name");
+                saveField.setMaxWidth(200);
+                lower.getChildren().add(saveField);
             });
 
                 for (int i = 0; i <= 3; i++) {
