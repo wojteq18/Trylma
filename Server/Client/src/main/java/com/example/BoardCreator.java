@@ -13,11 +13,18 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
+import com.example.DB.SaveService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+@Component
 public class BoardCreator {
     int[] firstClickCoords = new int[2];
     boolean[] isFirstClick = {true};
     private Client client;
     private TextField saveField;
+    @Autowired
+    private SaveService saveService;
 
         public void create(VBox root, HashMap<Position, Circle> circles) {
             Platform.runLater(() -> {
@@ -38,11 +45,33 @@ public class BoardCreator {
             });
             
             button2.setOnAction(e -> {
-                saveField = new TextField();
-                saveField.setPromptText("Enter save name");
-                saveField.setMaxWidth(200);
-                lower.getChildren().add(saveField);
+                TextField inputField = new TextField();
+                inputField.setPromptText("Enter name");
+                inputField.setMaxWidth(200);
+                lower.getChildren().add(inputField);
+
+                Button sendButton = new Button("Send");
+                lower.getChildren().add(sendButton);
+
+                sendButton.setOnAction(event -> {
+                    String enteredName = inputField.getText();
+                    int moveCount = client.getAllCoordinates().size(); 
+
+                    if (saveService != null && !enteredName.isEmpty()) {
+                        // Zapisanie do bazy danych
+                        saveService.addSave(enteredName, moveCount);
+                        System.out.println("Saved to database: " + enteredName + " with moveCount: " + moveCount);
+                    } else {
+                        System.out.println("SaveService is null or name is empty!");
+                    }
+
+                    // Usunięcie pola tekstowego i przycisku po zapisaniu
+                    lower.getChildren().remove(inputField);
+                    lower.getChildren().remove(sendButton);
+                });
             });
+
+
 
                 for (int i = 0; i <= 3; i++) {
                     HBox hbox = new HBox(10);

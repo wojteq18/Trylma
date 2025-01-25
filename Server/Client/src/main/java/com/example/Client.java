@@ -1,5 +1,12 @@
 package com.example;
 
+import javafx.animation.PauseTransition;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.util.Duration;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -8,14 +15,8 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import javafx.animation.PauseTransition;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-
 public class Client extends Application {
+
     private Lobby lobby;
     private GameGUI game;
     private Stage primaryStage;
@@ -24,13 +25,17 @@ public class Client extends Application {
     private String messegToSend = "";
     private List<String> allCoordinates = new ArrayList<>();
 
+    private static SpringContext springContext; // Referencja do kontekstu Springa
+
     @Override
     public void start(Stage primaryStage) {
         this.primaryStage = primaryStage;
+
+        // Pobranie GameGUI z kontekstu Springa
+        game = springContext.getBean(GameGUI.class);
+
         // Utworzenie lobby
         lobby = new Lobby();
-        game = new GameGUI(this);
-
 
         // Konfiguracja sceny i okna
         Scene scene = new Scene(lobby, 400, 200);
@@ -109,7 +114,9 @@ public class Client extends Application {
             System.out.println("Błąd klienta: " + e.getMessage());
         }
     }
+
     private void startGame() {
+        game.setClient(this);
         PauseTransition delay = new PauseTransition(Duration.seconds(5));
         delay.setOnFinished(event -> {
             Scene gameScene = new Scene(game, 800, 600);
@@ -119,7 +126,7 @@ public class Client extends Application {
         delay.play();
     }
 
-    public synchronized  void setMessageToSend(String message) {
+    public synchronized void setMessageToSend(String message) {
         this.messegToSend = message;
     }
 
@@ -132,6 +139,7 @@ public class Client extends Application {
     }
 
     public static void main(String[] args) {
-        launch(args);
+        springContext = new SpringContext(App.class);
+        Application.launch(Client.class, args);
     }
 }
