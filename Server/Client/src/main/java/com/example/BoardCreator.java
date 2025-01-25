@@ -14,6 +14,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 
 import com.example.DB.SaveService;
+import com.example.DB.MoveService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,9 @@ public class BoardCreator {
     private TextField saveField;
     @Autowired
     private SaveService saveService;
+    @Autowired
+    private MoveService moveService;
+
 
         public void create(VBox root, HashMap<Position, Circle> circles) {
             Platform.runLater(() -> {
@@ -60,7 +64,10 @@ public class BoardCreator {
                     if (saveService != null && !enteredName.isEmpty()) {
                         // Zapisanie do bazy danych
                         saveService.addSave(enteredName, moveCount);
-                        System.out.println("Saved to database: " + enteredName + " with moveCount: " + moveCount);
+                        for (int i = 0; i < moveCount; i++) {
+                            String moveData = client.getAllCoordinates().get(i);
+                            moveService.addMove(enteredName, i, moveData);
+                        }
                     } else {
                         System.out.println("SaveService is null or name is empty!");
                     }

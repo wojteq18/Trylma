@@ -13,9 +13,12 @@ public class Lobby extends VBox {
     private Label waitingLabel;
     private Label lobbyLabel;
     private TextField nicknameField;
+    private TextField replayField;
     private Button sendButton;
     private Button replayButton;
+    private Button send;
     private String nickname;
+    private Client client;
 
     public Lobby() {
         // Tworzenie etykiet z tekstem
@@ -46,7 +49,21 @@ public class Lobby extends VBox {
         //guzik do obejrzenia powtórki
         replayButton = new Button("Replay");
         replayButton.setOnAction(e -> {
-            //tutaj będzie kod do powtórki
+            replayField = new TextField();
+            replayField.setPromptText("Enter save name");
+            replayField.setMaxWidth(200);
+            this.getChildren().add(replayField);
+            sendButton = new Button("Send");
+            this.getChildren().add(sendButton);
+            sendButton.setOnAction(event -> {
+                String saveName = replayField.getText();
+                if (!saveName.isEmpty()) {
+                    System.out.println("Replay: " + saveName);
+                    client.startReplay(saveName);
+                } else {
+                    lobbyLabel.setText("Save name cannot be empty. Enter save name.");
+                }
+            });
         });
 
         // Ustawienia układu
@@ -73,5 +90,13 @@ public class Lobby extends VBox {
 
     public String getNickname() {
         return nickname;
+    }
+
+    public String getSaveName() {
+        return replayField.getText();
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
     }
 }

@@ -15,6 +15,9 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.example.DB.SaveService;
+import com.example.DB.MoveService;
+
 public class Client extends Application {
 
     private Lobby lobby;
@@ -36,6 +39,7 @@ public class Client extends Application {
 
         // Utworzenie lobby
         lobby = new Lobby();
+        lobby.setClient(this);
 
         // Konfiguracja sceny i okna
         Scene scene = new Scene(lobby, 400, 200);
@@ -124,6 +128,42 @@ public class Client extends Application {
             primaryStage.setTitle(lobby.getNickname());
         });
         delay.play();
+    }
+
+    public void startReplay(String saveName) {
+        game.setClient(this);  
+        
+        PauseTransition delay = new PauseTransition(Duration.seconds(5));
+        delay.setOnFinished(event -> {
+            Scene gameScene = new Scene(game, 800, 600);
+            primaryStage.setScene(gameScene);
+
+            MoveService moveService = springContext.getBean(MoveService.class);
+            SaveService saveService = springContext.getBean(SaveService.class);
+            int len = saveService.getSave(saveName).getMoveCount();
+            watchReplay(0, len, saveName, moveService);
+        });
+        delay.play();
+
+    }
+
+    private void watchReplay(int index, int total, String saveName, MoveService moveService) {
+        if (index >= total) {
+            return;
+        }
+
+        String boardState = moveService.getMoveData(saveName, index);
+
+        System.out.println("Replay [" + index + "]: " + boardState);
+        this.coordinates = boardState;
+        game.refresh();
+
+        PauseTransition transition = new PauseTransition(Duration.seconds(2));
+
+        transition.setOnFinished(e -> {
+            watchReplay(index + 1, total, saveName, moveService);
+        });
+        transition.play();
     }
 
     public synchronized void setMessageToSend(String message) {
