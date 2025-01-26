@@ -4,6 +4,7 @@
 /home/vostok/codes/Trylma/src/main/java/com/example/Board.java
 /home/vostok/codes/Trylma/src/main/java/com/example/strategy/FilledBoardStrategy.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Colors.java
+/home/vostok/codes/Trylma/src/main/java/com/example/BoardLoader.java
 /home/vostok/codes/Trylma/src/main/java/com/example/YinBoard.java
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/NoPawnMove.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Square.java

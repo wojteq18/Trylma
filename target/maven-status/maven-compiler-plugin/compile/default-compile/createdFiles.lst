@@ -7,6 +7,7 @@ com/example/Player.class
 com/example/Game.class
 com/example/YinBoard.class
 com/example/MoveFactory/NoPawnMove.class
+com/example/BoardLoader.class
 com/example/PlayerManager.class
 com/example/Board.class
 com/example/State.class

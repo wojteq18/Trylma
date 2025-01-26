@@ -37,9 +37,15 @@ public class Game {
      * @param numberOfPlayers  the number of players in the game
      * @param strategy         the strategy ID used to create the board
      */
-    public Game(int length, int numberOfPlayers, int strategy) {
-        BoardStrategy boardStrategy = BoardStrategyFactory.getStrategy(strategy);
-        Board board = boardStrategy.createBoard(length, numberOfPlayers);
+    public Game(int length, int numberOfPlayers, int strategy, String savedString) {
+        Board board;
+        if (strategy != 4) {
+            BoardStrategy boardStrategy = BoardStrategyFactory.getStrategy(strategy);
+            board = boardStrategy.createBoard(length, numberOfPlayers);
+            }
+        else {
+            board = new BoardLoader(length, numberOfPlayers, savedString);
+        }    
 
         // Print initial coordinates to the server
         board.printAllCoordinates();
