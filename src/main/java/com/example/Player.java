@@ -9,12 +9,20 @@ public class Player{
     private Board board;
     private List <Pawn> mypawns;
     private State state;
+    private boolean bot;
 
-    public Player(Colors color, Board board, State state){
+    public Player(Colors color, Board board, State state, boolean bot){
         this.color = color;
         this.board = board;
         this.state = state;
+        this.bot = bot;
         setPawns();
+    }
+    public boolean isBot(){
+        return bot;
+    }
+    public void setBot(boolean bot){
+        this.bot = bot;
     }
     public void setState(State state){
         this.state = state;
@@ -318,5 +326,70 @@ public class Player{
             default:
                 break;
         }
+    }
+    public int[] bestMove(){
+        int[] coords = new int[4];
+        int targetX =0;
+        int targetY = 0;
+        switch (color) {
+            case BLACK:
+                targetX = 16;
+                targetY = 0;
+                break;
+            case WHITE:
+                targetX = 0;
+                targetY = 0;
+                break;
+            case GREEN:
+                targetX = 12;
+                targetY = 12;
+                break;
+            case RED:
+                targetX = 4;
+                targetY = -12;
+                break;
+            case YELLOW:
+                targetX = 4;
+                targetY = 12;
+                 break;
+            case BLUE:
+                targetX = 12;
+                targetY = -12;
+                break;
+            default:
+                break;
+        }
+        int distancePassed = 0;
+        for (Pawn pawn : mypawns){
+            int pawnX = pawn.getX();
+            int pawnY = pawn.getY();
+            int distanceRemaining = 10000; //duzo zeby bylo z czego obcinac
+            int myX = 0, myY = 0;
+            for (Move move : pawn.getMoves()){
+                int x = move.getX();
+                int y = move.getY();
+                int finalX = Math.abs(targetX - x);
+                int finalY = Math.abs(targetY - y);
+                int mydistance = finalX + finalY;
+                if (mydistance < distanceRemaining) {
+                    distanceRemaining = mydistance; 
+                    myX = x;
+                    myY = y;
+                }
+            }
+            int passedX = Math.abs(myX - pawnX);
+            int passedY = Math.abs(myY - pawnY);
+            int myDistancePassed = passedX + passedY;
+            if (myDistancePassed > distancePassed){
+                distancePassed = myDistancePassed;
+                coords[0] = pawnX;
+                coords[1] = pawnY;
+                coords[2] = myX;
+                coords[3] = myY;
+            }
+        }
+        /*if(distancePassed == 0){
+            return null;
+        } else */return coords;
     }
 }

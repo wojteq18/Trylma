@@ -16,6 +16,14 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         // Read the number of players from the server
+        int bot = scanner.nextInt();
+        boolean isBot;
+        if (bot == 2) {
+            isBot = true;
+        } else {
+            isBot = false;
+        }
+
         int maxPlayers = scanner.nextInt();
 
         // Read the strategy ID from the server
@@ -28,7 +36,7 @@ public class Main {
         }
 
         // Create and start the game with the specified board size, number of players, and strategy
-        new Game(5, maxPlayers, strategy, savedBoard);
+        new Game(5, maxPlayers, strategy, savedBoard, isBot);
 
         scanner.close();
     }

@@ -37,7 +37,7 @@ public class Game {
      * @param numberOfPlayers  the number of players in the game
      * @param strategy         the strategy ID used to create the board
      */
-    public Game(int length, int numberOfPlayers, int strategy, String savedString) {
+    public Game(int length, int numberOfPlayers, int strategy, String savedString, boolean isBot) {
         Board board;
         if (strategy != 4) {
             BoardStrategy boardStrategy = BoardStrategyFactory.getStrategy(strategy);
@@ -51,76 +51,117 @@ public class Game {
         board.printAllCoordinates();
         System.out.flush();
 
-        PlayerManager manager = new PlayerManager(numberOfPlayers, board);
+        PlayerManager manager = new PlayerManager(numberOfPlayers, board, isBot);
         Player[] players = manager.getPlayers();
 
         Scanner scanner = new Scanner(System.in); // Read input from the server
         int queue = 0;
 
         // Main game loop
+// ...
         while (manager.activePlayers(players) > 1) {
             try {
+                // Odczyt komendy od serwera (zwykle tylko w turze człowieka)
                 command = scanner.nextLine();
                 Scanner commandScanner = new Scanner(command);
                 action = commandScanner.next();
 
+                // Jeśli gracz w kolejce jest aktywny...
                 if (players[queue].getState() == State.ACTIVE) {
+                    
+                    // 1. Tura człowieka (bot == false)
+                    if (!players[queue].isBot()) {
 
-                    if (action.equals("move")) {
-                        x = commandScanner.nextInt();
-                        y = commandScanner.nextInt();
-                        newX = commandScanner.nextInt();
-                        newY = commandScanner.nextInt();
+                        if (action.equals("move")) {
+                            x = commandScanner.nextInt();
+                            y = commandScanner.nextInt();
+                            newX = commandScanner.nextInt();
+                            newY = commandScanner.nextInt();
 
-                        try {
-                            int moveResult = players[queue].move(x, y, newX, newY);
-                            MoveHandler handler = MoveHandlerFactory.getHandler(moveResult); //fabryka dla wiadości o ruchu
-                            handler.handle();
+                            try {
+                                int moveResult = players[queue].move(x, y, newX, newY);
+                                MoveHandler handler = MoveHandlerFactory.getHandler(moveResult);
+                                handler.handle();
 
-                            if (handler.shouldSwitchPlayer()) {
-                                queue = (queue + 1) % numberOfPlayers;
+                                // Jeśli ruch udany i wymaga zmiany kolejki
+                                if (handler.shouldSwitchPlayer()) {
+                                    queue = (queue + 1) % numberOfPlayers;
+                                }
+
+                            } catch (Exception e) {
+                                System.err.println("Error during move execution: " + e.getMessage());
+                                e.printStackTrace();
+                                System.out.println("error");
+                                System.out.flush();
                             }
 
-                        } catch (Exception e) {
-                            System.err.println("Error during move execution: " + e.getMessage());
-                            e.printStackTrace();
-                            System.out.println("error"); // Send error to the server
+                        } else if (action.equals("wait")) {
+                            // Gracz decyduje się oddać ruch
+                            System.out.println("ok");
+                            System.out.flush();
+                            queue = (queue + 1) % numberOfPlayers;
+
+                        } else if (action.equals("show")) {
+                            // Wyświetlamy pionki aktualnego gracza
+                            List<Pawn> get = players[queue].getpawns();
+                            StringBuilder boardState = new StringBuilder("Pionki: ");
+                            for (Pawn pawn : get) {
+                                boardState.append("(")
+                                        .append(pawn.getX()).append(", ")
+                                        .append(pawn.getY()).append(", ")
+                                        .append(pawn.getColor()).append("), ");
+                            }
+                            if (boardState.length() > 8) {
+                                boardState.setLength(boardState.length() - 2);
+                            }
+                            System.out.println(boardState.toString());
+                            System.out.flush();
+
+                        } else if (action.equals("update")) {
+                            // Gracz prosi o aktualny stan pionków
+                            board.printAllCoordinates();
+                            System.out.flush();
+
+                        } else {
+                            // Nierozpoznana komenda
+                            System.out.println("error");
                             System.out.flush();
                         }
 
-                    } else if (action.equals("wait")) {
-                        System.out.println("ok"); // Send response to the server
-                        System.out.flush();
+                        commandScanner.close();
+                    } 
+                    // 2. Tura bota
+                    else {
+                        // Najpierw generujemy możliwe ruchy dla wszystkich pionków bota
+                        for (Pawn p : players[queue].getpawns()) {
+                            players[queue].multiMove(p, p.getX(), p.getY());
+                            players[queue].oneMove(p.getX(), p.getY());
+                        }
+
+                        // Bot wybiera najlepszy ruch
+                        int[] bestCoords = players[queue].bestMove();
+
+
+                        
+                            // Bot lokalnie wykonuje ruch
+                            players[queue].move(bestCoords[0], bestCoords[1], 
+                                                bestCoords[2], bestCoords[3]);
+
+                            // Po ruchu bota chcemy zaktualizować widok u klienta
+                            // => wysyłamy "update" do serwera:
+                            board.printAllCoordinates();
+                            System.out.flush();
+                            // Serwer w turze bota w sumie sprawdzi "czyja kolej" 
+                            // ale to "update" jest przepuszczane przez handle_client 
+                            // bo i tak dociera do Java w pętli, do 'action.equals("update")' 
+                        
+
+                        // Zmiana kolejki na kolejnego gracza w Javie
                         queue = (queue + 1) % numberOfPlayers;
-
-                    } else if (action.equals("show")) {
-                        List<Pawn> get = players[queue].getpawns();
-                        StringBuilder boardState = new StringBuilder("Pawns: ");
-                        for (Pawn pawn : get) {
-                            boardState.append(pawn.getX())
-                                    .append(" ")
-                                    .append(pawn.getY())
-                                    .append(" ")
-                                    .append(pawn.getColor())
-                                    .append(", ");
-                        }
-                        if (boardState.length() > 8) {
-                            boardState.setLength(boardState.length() - 2);
-                        }
-                        System.out.println(boardState.toString());
-                        System.out.flush();
-
-                    } else if (action.equals("update")) {
-                        board.printAllCoordinates();
-                        System.out.flush();
-
-                    } else {
-                        System.out.println("error"); // Invalid command
-                        System.out.flush();
+                        continue;
                     }
-                    commandScanner.close();
 
-                    // Check if the player has won
+                    // Sprawdzamy, czy gracze nie wygrali
                     try {
                         players[queue].hasWon();
                     } catch (Exception e) {
@@ -134,6 +175,8 @@ public class Game {
                 System.out.println("error");
             }
         }
+// ...
+
 
         // Game over
         try {

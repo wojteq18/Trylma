@@ -209,8 +209,9 @@ fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str,
     clients
 }
 
-fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>, strategy: usize, saved_board: &str) { //informuje proces java o liczbie graczy
+fn initialize_game(game_mode: usize, max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>, strategy: usize, saved_board: &str) { //informuje proces java o liczbie graczy
     let mut java_stdin_guard = java_stdin.lock().unwrap();
+    writeln!(java_stdin_guard, "{}", game_mode).expect("Nie udało się przesłać trybu gry do Javy");
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
     writeln!(java_stdin_guard, "{}", strategy).expect("Nie udało się przesłać strategii do Javy");
     writeln!(java_stdin_guard, "{}", saved_board).expect("Nie udało się przesłać nazwy save'a do Javy");
@@ -280,6 +281,8 @@ fn accept_first_client_and_get_palyers (
 fn main() -> std::io::Result<()> {
     let seed = generate_random_seed();
     let mut rng = Mt64::seed_from_u64(seed);
+    let mut game_mode: usize = 0;
+    let mut player_plus_bots: usize = 0;
 
     let strategy = {
         println!("Podaj numer strategii: ");
@@ -298,7 +301,7 @@ fn main() -> std::io::Result<()> {
     let mut first_client_storage: Option<TcpStream> = None;
     if strategy != 4 {
 
-        println!("Podaj ilość graczy: ");
+        println!("Podaj ilość graczy lub botów: ");
         let mut max_players_str = String::new();
         io::stdin()
             .read_line(&mut max_players_str)
@@ -306,9 +309,26 @@ fn main() -> std::io::Result<()> {
         let mp = max_players_str.trim().parse::<usize>().expect("Błąd parsowania");
 
         let lst = initialize_server("127.0.0.1:9999")?;
+        println!("Wybierz tryb gry:");
+        println!("1. Tryb standardowy");
+        println!("2. Tryb bot");
 
+        let mut mode_str = String::new();
+        io::stdin().read_line(&mut mode_str).expect("Błąd odczytu");
+        let mode: usize = mode_str.trim().parse().expect("Błąd parsowania");
+        // Zapisujemy w zewnętrznej zmiennej
+        game_mode = mode;
+        let mut real_max_players = mp;
+
+        if game_mode == 2 {
+            real_max_players = 1;
+            player_plus_bots = mp;
+        }
+        else {
+            player_plus_bots = mp;
+        }
         listener = lst;
-        max_players = mp;
+        max_players = real_max_players;
         save_name = None;
         saved_board = None;
     } else {
@@ -324,6 +344,7 @@ fn main() -> std::io::Result<()> {
         let (first_client, mp, sb_opt) = accept_first_client_and_get_palyers(&lst, &sn)?;
 
         listener = lst;
+        game_mode = 1;
         max_players = mp;
         save_name = Some(sn);
         saved_board = sb_opt;
@@ -337,7 +358,7 @@ fn main() -> std::io::Result<()> {
 
     let sb_str = saved_board.as_deref().unwrap_or("");
 
-    initialize_game(max_players, &java_stdin, strategy, sb_str);
+    initialize_game(game_mode, player_plus_bots, &java_stdin, strategy, sb_str);
 
     let coordinates = Arc::new(Mutex::new(String::new()));
     {
@@ -355,12 +376,11 @@ fn main() -> std::io::Result<()> {
     let clients = if strategy != 4 {
         accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, None)
     } else {
-        let c = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, first_client_storage);
+        let c = accept_clients(&listener, player_plus_bots, &coordinates.lock().unwrap(), a, first_client_storage);
         c
     };
     let current_player = Arc::new(Mutex::new(a));
     start_game(clients, current_player, java_stdin, java_reader);
     run_server_loop();
-    println!("4");
     Ok(())
 }
