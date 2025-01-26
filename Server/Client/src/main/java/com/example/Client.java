@@ -1,12 +1,5 @@
 package com.example;
 
-import javafx.animation.PauseTransition;
-import javafx.application.Application;
-import javafx.application.Platform;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-import javafx.util.Duration;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -15,8 +8,15 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.DB.SaveService;
 import com.example.DB.MoveService;
+import com.example.DB.SaveService;
+
+import javafx.animation.PauseTransition;
+import javafx.application.Application;
+import javafx.application.Platform;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import javafx.util.Duration;
 
 public class Client extends Application {
 
@@ -27,6 +27,7 @@ public class Client extends Application {
     private String coordinates = "";
     private String messegToSend = "";
     private List<String> allCoordinates = new ArrayList<>();
+    private int numberOfPlayers;
 
     private static SpringContext springContext; // Referencja do kontekstu Springa
 
@@ -76,6 +77,9 @@ public class Client extends Application {
                             allCoordinates.add(coordinates);
                             Platform.runLater(() -> game.refresh());                            
                             System.out.println("Coordinates: " + coordinates);
+                        }
+                        else if (msg.startsWith("Klienci: ")) {
+                            numberOfPlayers = Integer.parseInt(msg.substring(9));
                         }
                         if (isReady == true) {
                             System.out.println(msg);
@@ -176,6 +180,10 @@ public class Client extends Application {
 
     public synchronized List<String> getAllCoordinates() {
         return allCoordinates;
+    }
+
+    public synchronized int getNumberOfPlayers() {
+        return numberOfPlayers;
     }
 
     public static void main(String[] args) {

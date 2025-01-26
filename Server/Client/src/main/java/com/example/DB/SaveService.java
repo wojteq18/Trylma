@@ -3,8 +3,6 @@ package com.example.DB;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 public class SaveService {
 
@@ -12,10 +10,11 @@ public class SaveService {
     private SaveRepository saveRepository;
 
     // Dodawanie save'a z liczbą ruchów
-    public void addSave(String saveName, int moveCount) {
+    public void addSave(String saveName, int moveCount, int numberOfPlayers) {
         Save save = new Save();
         save.setSaveName(saveName);
         save.setMoveCount(moveCount); // Ustawienie liczby ruchów
+        save.setNumberOfPlayers(numberOfPlayers);
         saveRepository.save(save);
     }
 

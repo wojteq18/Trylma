@@ -4,6 +4,12 @@ import java.util.HashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.example.DB.MoveService;
+import com.example.DB.SaveService;
+
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
@@ -12,11 +18,6 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
-
-import com.example.DB.SaveService;
-import com.example.DB.MoveService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 @Component
 public class BoardCreator {
@@ -60,10 +61,11 @@ public class BoardCreator {
                 sendButton.setOnAction(event -> {
                     String enteredName = inputField.getText();
                     int moveCount = client.getAllCoordinates().size(); 
+                    int numberOfPlayers = client.getNumberOfPlayers();
 
                     if (saveService != null && !enteredName.isEmpty()) {
                         // Zapisanie do bazy danych
-                        saveService.addSave(enteredName, moveCount);
+                        saveService.addSave(enteredName, moveCount, numberOfPlayers);
                         for (int i = 0; i < moveCount; i++) {
                             String moveData = client.getAllCoordinates().get(i);
                             moveService.addMove(enteredName, i, moveData);

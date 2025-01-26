@@ -1,6 +1,11 @@
 package com.example.DB;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "saves") // Powiązanie z tabelą saves
@@ -15,6 +20,9 @@ public class Save {
 
     @Column(nullable = false) // Kolumna nie może być null
     private int moveCount; // Ilość ruchów
+
+    @Column(nullable = false) // Kolumna nie może być null
+    private int numberOfPlayer; // Ilość graczy
 
     // Gettery i settery
     public Long getId() {
@@ -39,5 +47,13 @@ public class Save {
 
     public void setMoveCount(int moveCount) {
         this.moveCount = moveCount;
+    }
+
+    public int getNumberOfPlayers() {
+        return numberOfPlayer;
+    }
+
+    public void setNumberOfPlayers(int numberOfPlayers) {
+        this.numberOfPlayer = numberOfPlayers;
     }
 }
