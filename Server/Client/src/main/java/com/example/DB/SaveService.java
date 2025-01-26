@@ -18,6 +18,11 @@ public class SaveService {
         saveRepository.save(save);
     }
 
+    public int getNumberOfPlayers(String saveName) {
+        Save save = saveRepository.findBySaveName(saveName);
+        return save.getNumberOfPlayers();
+    }
+
     // Pobieranie save'a na podstawie nazwy
     public Save getSave(String saveName) {
         return saveRepository.findBySaveName(saveName);

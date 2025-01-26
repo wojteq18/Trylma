@@ -28,6 +28,9 @@ public class Client extends Application {
     private String messegToSend = "";
     private List<String> allCoordinates = new ArrayList<>();
     private int numberOfPlayers;
+    private String saveName;
+    private SaveService saveService;
+    private MoveService moveService;
 
     private static SpringContext springContext; // Referencja do kontekstu Springa
 
@@ -80,6 +83,14 @@ public class Client extends Application {
                         }
                         else if (msg.startsWith("Klienci: ")) {
                             numberOfPlayers = Integer.parseInt(msg.substring(9));
+                        }
+                        else if (msg.startsWith("SAVE_NAME: ")) {
+                            String saveName = msg.substring(11);
+                            //System.out.println("save_name: " + saveName);
+                            saveService = springContext.getBean(SaveService.class);
+                            int max_player = saveService.getNumberOfPlayers(saveName);
+                            output.println(max_player);
+                            System.out.flush();
                         }
                         if (isReady == true) {
                             System.out.println(msg);
@@ -184,6 +195,10 @@ public class Client extends Application {
 
     public synchronized int getNumberOfPlayers() {
         return numberOfPlayers;
+    }
+
+    public synchronized String getSaveName() {
+        return saveName;
     }
 
     public static void main(String[] args) {
