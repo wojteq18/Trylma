@@ -1,7 +1,7 @@
 use std::io::{BufRead, BufReader, Write};
 use std::net::{TcpListener, TcpStream};
 use std::sync::{Arc, Mutex};
-use std::thread;
+use std::{str, thread};
 use std::process::{Command, Stdio};
 use std::io;
 use rand::seq::index;
@@ -179,8 +179,11 @@ fn setup_java_process( //uruchamia proces javy
     return (java_stdin, java_reader)
 }
 
-fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str, a: usize) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
+fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str, a: usize, first_client: Option<TcpStream>,) -> Vec<TcpStream> { //oczekuje na klientow oraz dodaje ich do listy klientow
     let mut clients: Vec<TcpStream> = Vec::new();
+    if let Some(fc) = first_client {
+        clients.push(fc);
+    }
     while clients.len() < max_players {    
         match listener.accept() {
             Ok((mut stream, _)) => {
@@ -199,15 +202,19 @@ fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str,
     for client in &mut clients {
         writeln!(client, "Wszyscy gracze dołączyli, gra się rozpoczyna!").expect("Błąd wysyłania wiadomości do klienta");
         writeln!(client, "Zaczyna gracz: {}", a + 1).expect("Błąd wysyłania informacji o rozpoczęciu gry");
+        writeln!(client, "Klienci: {}", max_players).expect("Błąd wysyłania liczby klientów do klienta");
         writeln!(client, "{}", coordinates).expect("Błąd wysyłania współrzędnych do klienta");
+
     }
     clients
 }
 
-fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>, strategy: usize) { //informuje proces java o liczbie graczy,  TODO przekazac strategie
+fn initialize_game(max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>, strategy: usize, saved_board: &str) { //informuje proces java o liczbie graczy
     let mut java_stdin_guard = java_stdin.lock().unwrap();
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
     writeln!(java_stdin_guard, "{}", strategy).expect("Nie udało się przesłać strategii do Javy");
+    writeln!(java_stdin_guard, "{}", saved_board).expect("Nie udało się przesłać nazwy save'a do Javy");
+
 }
 
 fn start_game( //rozpoczyna gre, tworzy wspoldzielona liste klientow, tworzy osobny watek dla klienta w ktorym dziala handle_client
@@ -248,40 +255,91 @@ fn generate_random_seed() -> u64 {
     return seed;
 }
 
+fn accept_first_client_and_get_palyers (
+    listener: &TcpListener,
+    save_name: &str,
+) -> std::io::Result<(TcpStream, usize, Option<String>,)> {
+    println!("Oczekiwanie na pierwszego klienta...");
+    let (mut first_stream, addr) = listener.accept()?;
+    println!("Pierwszy klient połączony: {}", addr);
+
+    writeln!(first_stream, "SAVE_NAME: {}", save_name).expect("Błąd wysyłania nazwy save'a do klienta");
+
+    let mut reader = BufReader::new(first_stream.try_clone().expect("Błąd klonowania strumienia"));
+    let mut line1 = String::new();
+    reader.read_line(&mut line1).expect("Błąd odczytu od klienta");
+    let max_players = line1.trim().parse::<usize>().expect("Błąd parsowania liczby graczy");
+    let mut line2 = String::new();
+    reader.read_line(&mut line2).expect("Błąd odczytu od klienta");
+    let mut saved_board_raw = line2.trim().to_string();
+    let saved_board = Some(saved_board_raw);
+    println!("Pierwszy klient podał liczbę: {}", max_players);
+    Ok((first_stream, max_players, saved_board))
+}
+
 fn main() -> std::io::Result<()> {
     let seed = generate_random_seed();
     let mut rng = Mt64::seed_from_u64(seed);
-    let max_players = {
-        println!("Podaj ilość graczy: ");
-        let mut max_players = String::new();
-        io::stdin().read_line(&mut max_players).expect("Błąd odczytu");
-        let max_players: usize = max_players.trim().parse().expect("Błąd parsowania");
-        max_players  // zwracamy przetworzoną wartość
-    };
 
     let strategy = {
         println!("Podaj numer strategii: ");
         println!("1. Strategia standardowa");
         println!("2. Strategia Yin-Yang");
         println!("3. Strategia Chaos");
-        
-        let mut strategy = String::new();
-        io::stdin().read_line(&mut strategy).expect("Błąd odczytu");
-        let strategy: usize = strategy.trim().parse().expect("Błąd parsowania");
-        strategy  // zwracamy przetworzoną wartość
+        println!("4. Wczytanie poprzedniej gry");
+
+        let mut strategy_str = String::new();
+        io::stdin().read_line(&mut strategy_str).expect("Błąd odczytu");
+        strategy_str.trim().parse::<usize>().expect("Błąd parsowania")
     };
 
-    let listener = initialize_server("127.0.0.1:9999")?;
+    let (listener, max_players, save_name, saved_board);
+
+    let mut first_client_storage: Option<TcpStream> = None;
+    if strategy != 4 {
+
+        println!("Podaj ilość graczy: ");
+        let mut max_players_str = String::new();
+        io::stdin()
+            .read_line(&mut max_players_str)
+            .expect("Błąd odczytu");
+        let mp = max_players_str.trim().parse::<usize>().expect("Błąd parsowania");
+
+        let lst = initialize_server("127.0.0.1:9999")?;
+
+        listener = lst;
+        max_players = mp;
+        save_name = None;
+        saved_board = None;
+    } else {
+        // -- Strategia 4: wczytanie gry --
+
+        println!("Podaj nazwę save'a: ");
+        let mut save_str = String::new();
+        io::stdin().read_line(&mut save_str).expect("Błąd odczytu");
+        let sn = save_str.trim().to_string();
+
+        let lst = initialize_server("127.0.0.1:9999")?;
+
+        let (first_client, mp, sb_opt) = accept_first_client_and_get_palyers(&lst, &sn)?;
+
+        listener = lst;
+        max_players = mp;
+        save_name = Some(sn);
+        saved_board = sb_opt;
+        first_client_storage = Some(first_client);
+    }
 
     let (java_stdin, java_reader) = setup_java_process(
-        "/home/vostok/codes/Trylma/target/classes", // Nowa ścieżka do klasy Java
-        "com.example.Main", // Główna klasa Java
+        "/home/vostok/codes/Trylma/target/classes",
+        "com.example.Main",
     );
 
-    initialize_game(max_players, &java_stdin, strategy); 
+    let sb_str = saved_board.as_deref().unwrap_or("");
+
+    initialize_game(max_players, &java_stdin, strategy, sb_str);
 
     let coordinates = Arc::new(Mutex::new(String::new()));
-
     {
         let mut java_reader_guard = java_reader.lock().unwrap();
         let mut response = String::new();
@@ -293,13 +351,16 @@ fn main() -> std::io::Result<()> {
     }
 
     let a = rng.gen_range(0..max_players);
-    let clients = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a);
 
+    let clients = if strategy != 4 {
+        accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, None)
+    } else {
+        let c = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, first_client_storage);
+        c
+    };
     let current_player = Arc::new(Mutex::new(a));
-
     start_game(clients, current_player, java_stdin, java_reader);
-
     run_server_loop();
-
+    println!("4");
     Ok(())
 }

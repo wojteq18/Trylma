@@ -36,4 +36,9 @@ public class SaveService {
             saveRepository.save(save); // Zapisanie zmiany
         }
     }
+
+    public int getMoveCount(String saveName) {
+        Save save = saveRepository.findBySaveName(saveName);
+        return save.getMoveCount();
+    }
 }

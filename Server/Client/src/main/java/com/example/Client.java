@@ -86,10 +86,14 @@ public class Client extends Application {
                         }
                         else if (msg.startsWith("SAVE_NAME: ")) {
                             String saveName = msg.substring(11);
-                            //System.out.println("save_name: " + saveName);
                             saveService = springContext.getBean(SaveService.class);
                             int max_player = saveService.getNumberOfPlayers(saveName);
                             output.println(max_player);
+                            System.out.flush();
+                            int numberOfMoves = saveService.getMoveCount(saveName);
+                            moveService = springContext.getBean(MoveService.class);
+                            String savedBoard = moveService.getMoveData(saveName, numberOfMoves - 1);
+                            output.println(savedBoard);
                             System.out.flush();
                         }
                         if (isReady == true) {
