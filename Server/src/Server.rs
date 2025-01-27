@@ -211,6 +211,7 @@ fn accept_clients(listener: &TcpListener, max_players: usize, coordinates: &str,
 
 fn initialize_game(game_mode: usize, max_players: usize, java_stdin: &Arc<Mutex<std::process::ChildStdin>>, strategy: usize, saved_board: &str) { //informuje proces java o liczbie graczy
     let mut java_stdin_guard = java_stdin.lock().unwrap();
+    println!("max: {} ", max_players);
     writeln!(java_stdin_guard, "{}", game_mode).expect("Nie udało się przesłać trybu gry do Javy");
     writeln!(java_stdin_guard, "{}", max_players).expect("Nie udało się przesłać liczby graczy do Javy");
     writeln!(java_stdin_guard, "{}", strategy).expect("Nie udało się przesłać strategii do Javy");
@@ -346,6 +347,7 @@ fn main() -> std::io::Result<()> {
         listener = lst;
         game_mode = 1;
         max_players = mp;
+        //println!("max_players: {}", max_players);
         save_name = Some(sn);
         saved_board = sb_opt;
         first_client_storage = Some(first_client);
@@ -358,7 +360,11 @@ fn main() -> std::io::Result<()> {
 
     let sb_str = saved_board.as_deref().unwrap_or("");
 
-    initialize_game(game_mode, max_players, &java_stdin, strategy, sb_str);
+    if strategy == 4 {
+        initialize_game(game_mode, max_players, &java_stdin, strategy, sb_str);
+    } else {
+        initialize_game(game_mode, player_plus_bots, &java_stdin, strategy, sb_str);
+    }
 
     let coordinates = Arc::new(Mutex::new(String::new()));
     {
@@ -374,9 +380,14 @@ fn main() -> std::io::Result<()> {
     let a = rng.gen_range(0..max_players);
 
     let clients = if strategy != 4 {
-        accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, None)
+        if game_mode == 2 {
+            accept_clients(&listener, 1, &coordinates.lock().unwrap(), a, None)
+        }
+        else {
+            accept_clients(&listener, player_plus_bots, &coordinates.lock().unwrap(), a, None)
+        }
     } else {
-        let c = accept_clients(&listener, player_plus_bots, &coordinates.lock().unwrap(), a, first_client_storage);
+        let c = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, first_client_storage);
         c
     };
     let current_player = Arc::new(Mutex::new(a));
