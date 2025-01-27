@@ -124,6 +124,12 @@ public class Player{
         }
         return true;
     }
+    public void addMoves (){
+        for (Pawn p : mypawns){
+            multiMove(p, p.getX(), p.getY());
+            oneMove(p.getX(), p.getY());
+        }
+    }
     public int move (int x, int y, int newX, int newY){
         //boolean doneMove = false;
         //while(!doneMove){
@@ -328,68 +334,72 @@ public class Player{
         }
     }
     public int[] bestMove(){
+        addMoves();
         int[] coords = new int[4];
         int targetX =0;
         int targetY = 0;
         switch (color) {
             case BLACK:
-                targetX = 16;
-                targetY = 0;
-                break;
-            case WHITE:
                 targetX = 0;
                 targetY = 0;
                 break;
+            case WHITE:
+                targetX = 16;
+                targetY = 0;
+                break;
             case GREEN:
-                targetX = 12;
-                targetY = 12;
+                targetX = 4;
+                targetY = -12;
                 break;
             case RED:
-                targetX = 4;
-                targetY = -12;
+                targetX = 12;
+                targetY = 12;
                 break;
             case YELLOW:
-                targetX = 4;
-                targetY = 12;
-                 break;
-            case BLUE:
                 targetX = 12;
                 targetY = -12;
+                 break;
+            case BLUE:
+                targetX = 4;
+                targetY = 12;
                 break;
             default:
                 break;
         }
         int distancePassed = 0;
-        for (Pawn pawn : mypawns){
+        for (Pawn pawn : mypawns) {
             int pawnX = pawn.getX();
             int pawnY = pawn.getY();
-            int distanceRemaining = 10000; //duzo zeby bylo z czego obcinac
-            int myX = 0, myY = 0;
-            for (Move move : pawn.getMoves()){
+
+            int bestX = pawnX, bestY = pawnY;
+            int bestDistance = Math.abs(targetX - pawnX) + Math.abs(targetY - pawnY);
+
+            for (Move move : pawn.getMoves()) {
                 int x = move.getX();
                 int y = move.getY();
-                int finalX = Math.abs(targetX - x);
-                int finalY = Math.abs(targetY - y);
-                int mydistance = finalX + finalY;
-                if (mydistance < distanceRemaining) {
-                    distanceRemaining = mydistance; 
-                    myX = x;
-                    myY = y;
+                int newDistance = Math.abs(targetX - x) + Math.abs(targetY - y);
+                if (newDistance <= bestDistance) {
+                    bestDistance = newDistance;
+                    bestX = x;
+                    bestY = y;
                 }
             }
-            int passedX = Math.abs(myX - pawnX);
-            int passedY = Math.abs(myY - pawnY);
-            int myDistancePassed = passedX + passedY;
-            if (myDistancePassed > distancePassed){
+
+            int myDistancePassed = Math.abs(bestX - pawnX) + Math.abs(bestY - pawnY);
+
+            if (myDistancePassed > distancePassed) {
                 distancePassed = myDistancePassed;
                 coords[0] = pawnX;
                 coords[1] = pawnY;
-                coords[2] = myX;
-                coords[3] = myY;
+                coords[2] = bestX;
+                coords[3] = bestY;
             }
         }
-        /*if(distancePassed == 0){
-            return null;
-        } else */return coords;
+
+        //if(distancePassed == 0){
+          //  return null;
+        //} else {
+            return coords;
+        //}
     }
 }

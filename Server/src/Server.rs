@@ -358,7 +358,7 @@ fn main() -> std::io::Result<()> {
 
     let sb_str = saved_board.as_deref().unwrap_or("");
 
-    initialize_game(game_mode, player_plus_bots, &java_stdin, strategy, sb_str);
+    initialize_game(game_mode, max_players, &java_stdin, strategy, sb_str);
 
     let coordinates = Arc::new(Mutex::new(String::new()));
     {

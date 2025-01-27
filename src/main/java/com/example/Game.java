@@ -68,11 +68,12 @@ public class Game {
 
                 // Jeśli gracz w kolejce jest aktywny...
                 if (players[queue].getState() == State.ACTIVE) {
-                    
-                    // 1. Tura człowieka (bot == false)
-                    if (!players[queue].isBot()) {
+                    players[queue].addMoves();
 
+                    if (!players[queue].isBot()) {
+                        
                         if (action.equals("move")) {
+            
                             x = commandScanner.nextInt();
                             y = commandScanner.nextInt();
                             newX = commandScanner.nextInt();
@@ -127,38 +128,19 @@ public class Game {
                             System.out.println("error");
                             System.out.flush();
                         }
-
                         commandScanner.close();
                     } 
                     // 2. Tura bota
                     else {
-                        // Najpierw generujemy możliwe ruchy dla wszystkich pionków bota
-                        for (Pawn p : players[queue].getpawns()) {
-                            players[queue].multiMove(p, p.getX(), p.getY());
-                            players[queue].oneMove(p.getX(), p.getY());
-                        }
-
-                        // Bot wybiera najlepszy ruch
                         int[] bestCoords = players[queue].bestMove();
-
-
-                        
                             // Bot lokalnie wykonuje ruch
-                            players[queue].move(bestCoords[0], bestCoords[1], 
-                                                bestCoords[2], bestCoords[3]);
-
-                            // Po ruchu bota chcemy zaktualizować widok u klienta
-                            // => wysyłamy "update" do serwera:
+                        players[queue].move(bestCoords[0], bestCoords[1], 
+                                            bestCoords[2], bestCoords[3]);
                             board.printAllCoordinates();
                             System.out.flush();
-                            // Serwer w turze bota w sumie sprawdzi "czyja kolej" 
-                            // ale to "update" jest przepuszczane przez handle_client 
-                            // bo i tak dociera do Java w pętli, do 'action.equals("update")' 
-                        
 
-                        // Zmiana kolejki na kolejnego gracza w Javie
+
                         queue = (queue + 1) % numberOfPlayers;
-                        continue;
                     }
 
                     // Sprawdzamy, czy gracze nie wygrali
@@ -188,4 +170,28 @@ public class Game {
         }
         scanner.close();
     }
+
+    private boolean isLastActiveBot(int currentQueue, Player[] players) {
+        int numberOfPlayers = players.length;
+
+        // Sprawdzamy kolejnych graczy w kolejce
+        for (int i = 1; i < numberOfPlayers; i++) {
+            int nextQueue = (currentQueue + i) % numberOfPlayers;
+            Player nextPlayer = players[nextQueue];
+
+            if (nextPlayer.getState() == State.ACTIVE && !nextPlayer.isBot()) {
+                // Jeśli znajdziemy aktywnego człowieka, obecny bot jest ostatnim
+                return true;
+            }
+
+            if (nextPlayer.getState() == State.ACTIVE && nextPlayer.isBot()) {
+                // Jeśli znajdziemy aktywnego bota, obecny bot nie jest ostatnim
+                return false;
+            }
+        }
+
+        // Jeśli nie znaleziono aktywnego człowieka, obecny bot jest ostatnim
+        return true;
+    }
+
 }
