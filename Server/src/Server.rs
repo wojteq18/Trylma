@@ -126,7 +126,25 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                 } else if first_word == "Pionki: " || first_word == "Pionki" {
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
-                } else {
+                } else if first_word == "bot" {
+                    /*let mut current_player_guard = current_player.lock().unwrap();
+                    {
+                        let clients_guard = clients.lock().unwrap();
+                        *current_player_guard = (*current_player_guard + 1) % clients_guard.len();
+
+                        for (index, client) in clients_guard.iter().enumerate() {
+                            let mut writer = client.try_clone().expect("Błąd klonowania TcpStream");
+
+                            // Informacja dla następnego gracza
+                            if index == *current_player_guard {
+                                writeln!(writer, "Twoja kolej!")
+                                    .expect("Błąd wysyłania powiadomienia do następnego gracza");
+                            }
+                        }
+                    }*/
+                    continue;
+                }
+                else {
                     writeln!(writer_stream, "Wykonaj ruch lub podświetl swoje pionki!").unwrap();
                 }
             }
@@ -345,8 +363,14 @@ fn main() -> std::io::Result<()> {
         let (first_client, mp, sb_opt) = accept_first_client_and_get_palyers(&lst, &sn)?;
 
         listener = lst;
-        game_mode = 1;
-        max_players = mp;
+        if mp == 1 {
+            game_mode = 2;
+            max_players = 2;
+            player_plus_bots = 2;
+        } else {
+            game_mode = 1;
+            max_players = mp;
+        }
         //println!("max_players: {}", max_players);
         save_name = Some(sn);
         saved_board = sb_opt;
@@ -387,8 +411,12 @@ fn main() -> std::io::Result<()> {
             accept_clients(&listener, player_plus_bots, &coordinates.lock().unwrap(), a, None)
         }
     } else {
-        let c = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, first_client_storage);
-        c
+        if game_mode == 2 {
+            accept_clients(&listener, 1, &coordinates.lock().unwrap(), 1, first_client_storage)
+        } else {
+            let c = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, first_client_storage);
+            c
+        }
     };
     let current_player = Arc::new(Mutex::new(a));
     start_game(clients, current_player, java_stdin, java_reader);
