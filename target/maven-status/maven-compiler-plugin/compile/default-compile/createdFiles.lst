@@ -10,7 +10,7 @@ com/example/MoveFactory/NoPawnMove.class
 com/example/BoardLoader.class
 com/example/PlayerManager.class
 com/example/Board.class
-com/example/State.class
+com/example/state/InactiveState.class
 com/example/Main.class
 com/example/Player$1.class
 com/example/MoveFactory/NotEmptyMove.class
@@ -20,8 +20,10 @@ com/example/MoveFactory/OkMoveHandler.class
 com/example/FilledBoard.class
 com/example/Colors.class
 com/example/strategy/FilledBoardStrategy.class
+com/example/state/ActiveState.class
 com/example/strategy/YinBoardStrategy.class
 com/example/MoveFactory/UnknownError.class
+com/example/state/PlayerState.class
 com/example/strategy/BoardStrategy.class
 com/example/MoveFactory/MoveHandler.class
 com/example/Square.class

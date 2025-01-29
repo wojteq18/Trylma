@@ -1,5 +1,7 @@
 package com.example;
 
+import com.example.state.ActiveState;
+
 public class PlayerManager{
 
     private Player[] players;
@@ -15,30 +17,30 @@ public class PlayerManager{
         switch (numberOfPlayers){
             case 2:
                 players = new Player[2];
-                players[0] = new Player(Colors.WHITE, board, State.ACTIVE, false);
-                players[1] = new Player(Colors.BLACK, board, State.ACTIVE, false);
+                players[0] = new Player(Colors.WHITE, board, new ActiveState(), false);
+                players[1] = new Player(Colors.BLACK, board, new ActiveState(), false);
                 break;
             case 3:
                 players = new Player[3];
-                players[1] = new Player(Colors.BLACK, board, State.ACTIVE, false);
-                players[2] = new Player(Colors.YELLOW, board, State.ACTIVE, false);
-                players[0] = new Player(Colors.RED, board, State.ACTIVE, false);
+                players[1] = new Player(Colors.BLACK, board, new ActiveState(), false);
+                players[2] = new Player(Colors.YELLOW, board, new ActiveState(), false);
+                players[0] = new Player(Colors.RED, board, new ActiveState(), false);
                 break;
             case 4:
                 players = new Player[4];
-                players[0] = new Player(Colors.RED, board, State.ACTIVE, false);
-                players[3] = new Player(Colors.YELLOW, board, State.ACTIVE, false);
-                players[1] = new Player(Colors.GREEN, board, State.ACTIVE, false);
-                players[2] = new Player(Colors.BLUE, board, State.ACTIVE, false);
+                players[0] = new Player(Colors.RED, board, new ActiveState(), false);
+                players[3] = new Player(Colors.YELLOW, board, new ActiveState(), false);
+                players[1] = new Player(Colors.GREEN, board, new ActiveState(), false);
+                players[2] = new Player(Colors.BLUE, board, new ActiveState(), false);
                 break;
             case 6:
                 players = new Player[6];
-                players[1] = new Player(Colors.RED, board, State.ACTIVE, false);
-                players[5] = new Player(Colors.YELLOW, board, State.ACTIVE, false);
-                players[2] = new Player(Colors.GREEN, board, State.ACTIVE, false);
-                players[4] = new Player(Colors.BLUE, board, State.ACTIVE, false);
-                players[3] = new Player(Colors.BLACK, board, State.ACTIVE, false);
-                players[0] = new Player(Colors.WHITE, board, State.ACTIVE, false);
+                players[1] = new Player(Colors.RED, board, new ActiveState(), false);
+                players[5] = new Player(Colors.YELLOW, board, new ActiveState(), false);
+                players[2] = new Player(Colors.GREEN, board, new ActiveState(), false);
+                players[4] = new Player(Colors.BLUE, board, new ActiveState(), false);
+                players[3] = new Player(Colors.BLACK, board, new ActiveState(), false);
+                players[0] = new Player(Colors.WHITE, board, new ActiveState(), false);
                 break;
             default:
                 throw new IllegalArgumentException("Invalid number of players: " + numberOfPlayers);    
@@ -50,11 +52,10 @@ public class PlayerManager{
             players[0].setBot(false);
         }
     }
-    public int activePlayers(Player[] players){
-        int size = players.length;
+    public int activePlayers(Player[] players) {
         int count = 0;
-        for (int i = 0; i < size; i++){
-            if (players[i].getState() == State.ACTIVE){
+        for (Player player : players) {
+            if (player.isActive()) {
                 count++;
             }
         }

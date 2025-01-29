@@ -4,7 +4,6 @@ use std::sync::{Arc, Mutex};
 use std::{str, thread};
 use std::process::{Command, Stdio};
 use std::io;
-use rand::seq::index;
 use rand_mt::Mt64;
 use rand::{Rng, SeedableRng};
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -127,21 +126,6 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                     writeln!(writer_stream, "{}", java_response.trim()).unwrap();
                     continue;
                 } else if first_word == "bot" {
-                    /*let mut current_player_guard = current_player.lock().unwrap();
-                    {
-                        let clients_guard = clients.lock().unwrap();
-                        *current_player_guard = (*current_player_guard + 1) % clients_guard.len();
-
-                        for (index, client) in clients_guard.iter().enumerate() {
-                            let mut writer = client.try_clone().expect("Błąd klonowania TcpStream");
-
-                            // Informacja dla następnego gracza
-                            if index == *current_player_guard {
-                                writeln!(writer, "Twoja kolej!")
-                                    .expect("Błąd wysyłania powiadomienia do następnego gracza");
-                            }
-                        }
-                    }*/
                     continue;
                 }
                 else {
@@ -153,7 +137,6 @@ fn handle_client( //obsluguje klienta, odbiera wiadomosci od klienta, przekazuje
                 break;
             }
         }
-        println!("hejlakoniec");
     }
 
     // Po zakończeniu połączenia, klient jest usuwany z listy
@@ -291,7 +274,7 @@ fn accept_first_client_and_get_palyers (
     let max_players = line1.trim().parse::<usize>().expect("Błąd parsowania liczby graczy");
     let mut line2 = String::new();
     reader.read_line(&mut line2).expect("Błąd odczytu od klienta");
-    let mut saved_board_raw = line2.trim().to_string();
+    let saved_board_raw = line2.trim().to_string();
     let saved_board = Some(saved_board_raw);
     println!("Pierwszy klient podał liczbę: {}", max_players);
     Ok((first_stream, max_players, saved_board))
@@ -412,14 +395,21 @@ fn main() -> std::io::Result<()> {
         }
     } else {
         if game_mode == 2 {
-            accept_clients(&listener, 1, &coordinates.lock().unwrap(), 1, first_client_storage)
+            println!("Tutaj");
+            accept_clients(&listener, 1, &coordinates.lock().unwrap(), 0, first_client_storage)
         } else {
             let c = accept_clients(&listener, max_players, &coordinates.lock().unwrap(), a, first_client_storage);
             c
         }
     };
     let current_player = Arc::new(Mutex::new(a));
-    start_game(clients, current_player, java_stdin, java_reader);
+    let current_player1 = Arc::new(Mutex::new(0));
+    if game_mode == 2 && strategy == 4 {
+        start_game(clients,current_player1, java_stdin, java_reader);
+    }
+    else {
+        start_game(clients, current_player, java_stdin, java_reader);
+    }
     run_server_loop();
     Ok(())
 }

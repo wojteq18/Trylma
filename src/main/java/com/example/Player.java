@@ -3,34 +3,49 @@ package com.example;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Player{
-    
+import com.example.state.InactiveState;
+import com.example.state.PlayerState;
+
+public class Player {
     private Colors color;
     private Board board;
-    private List <Pawn> mypawns;
-    private State state;
+    private List<Pawn> mypawns;
+    private PlayerState state;
     private boolean bot;
 
-    public Player(Colors color, Board board, State state, boolean bot){
+    public Player(Colors color, Board board, PlayerState initialState, boolean bot) {
         this.color = color;
         this.board = board;
-        this.state = state;
+        this.state = initialState;
         this.bot = bot;
         setPawns();
     }
-    public boolean isBot(){
+
+    public boolean isBot() {
         return bot;
     }
-    public void setBot(boolean bot){
+
+    public void setBot(boolean bot) {
         this.bot = bot;
     }
-    public void setState(State state){
+
+    public void setState(PlayerState state) {
         this.state = state;
     }
-    public State getState(){
+
+    public PlayerState getState() {
         return state;
     }
-    public Colors getColor(){
+
+    public boolean isActive() {
+        return state.isActive();
+    }
+
+    public void performAction() {
+        state.handle(this);
+    }
+
+    public Colors getColor() {
         return color;
     }
     public void setPawns(){
@@ -126,6 +141,7 @@ public class Player{
     }
     public void addMoves (){
         for (Pawn p : mypawns){
+            p.clearMoves();
             multiMove(p, p.getX(), p.getY());
             oneMove(p.getX(), p.getY());
         }
@@ -147,7 +163,6 @@ public class Player{
                                 pawn.setY(newY);
                                 setSquareStatus(x, y, true);
                                 setSquareStatus(newX, newY, false);
-                                
                                 return 0; //zwraca 0, gdy ruch jest legalny
                             } else {
                                 return 1; //zwraca 1, gdy ruch jest zakazany (?)
@@ -243,37 +258,37 @@ public class Player{
             pawn.addMove(new Move(x - 1, y + 1));
         }
     }
-    public void hasWon(){
+    public void hasWon() {
         Colors playerColor = color;
         switch (playerColor) {
             case WHITE:
-                if(checkWin(Colors.BLACK)){
-                    state = State.INACTIVE;
+                if (checkWin(Colors.BLACK)) {
+                    setState(new InactiveState());
                 }
                 break;
             case BLACK:
-                if(checkWin(Colors.WHITE)){
-                    state = State.INACTIVE;
+                if (checkWin(Colors.WHITE)) {
+                    setState(new InactiveState());
                 }
                 break;
             case YELLOW:
-                if(checkWin(Colors.RED)){
-                    state = State.INACTIVE;
+                if (checkWin(Colors.RED)) {
+                    setState(new InactiveState());
                 }
                 break;
             case RED:
-                if(checkWin(Colors.YELLOW)){
-                    state = State.INACTIVE;
+                if (checkWin(Colors.YELLOW)) {
+                    setState(new InactiveState());
                 }
                 break;
             case BLUE:
-                if(checkWin(Colors.GREEN)){
-                    state = State.INACTIVE;
+                if (checkWin(Colors.GREEN)) {
+                    setState(new InactiveState());
                 }
                 break;
             case GREEN:
-                if(checkWin(Colors.BLUE)){
-                    state = State.INACTIVE;
+                if (checkWin(Colors.BLUE)) {
+                    setState(new InactiveState());
                 }
                 break;
             default:
@@ -301,93 +316,117 @@ public class Player{
         switch (playerColor) {
             case WHITE:
                 if(checkWin(Colors.WHITE)){
-                    state = State.INACTIVE;
+                    setState(new InactiveState());;
                 }
                 break;
             case BLACK:
                 if(checkWin(Colors.WHITE)){
-                    state = State.INACTIVE;
+                    setState(new InactiveState());
                 }
                 break;
             case YELLOW:
                 if(checkWin(Colors.RED)){
-                    state = State.INACTIVE;
+                    setState(new InactiveState());
                 }
                 break;
             case RED:
                 if(checkWin(Colors.YELLOW)){
-                    state = State.INACTIVE;
+                    setState(new InactiveState());
                 }
                 break;
             case BLUE:
                 if(checkWin(Colors.GREEN)){
-                    state = State.INACTIVE;
+                    setState(new InactiveState());
                 }
                 break;
             case GREEN:
                 if(checkWin(Colors.BLUE)){
-                    state = State.INACTIVE;
+                    setState(new InactiveState());
                 }
                 break;
             default:
                 break;
         }
     }
-    public int[] bestMove(){
+    int [] bestMoveBlack(){
         addMoves();
-        int[] coords = new int[4];
-        int targetX =0;
-        int targetY = 0;
-        switch (color) {
-            case BLACK:
-                targetX = 0;
-                targetY = 0;
-                break;
-            case WHITE:
-                targetX = 16;
-                targetY = 0;
-                break;
-            case GREEN:
-                targetX = 4;
-                targetY = -12;
-                break;
-            case RED:
-                targetX = 12;
-                targetY = 12;
-                break;
-            case YELLOW:
-                targetX = 12;
-                targetY = -12;
-                 break;
-            case BLUE:
-                targetX = 4;
-                targetY = 12;
-                break;
-            default:
-                break;
-        }
-        int distancePassed = 0;
+        int [] coords = new int[4];
+        double distancePassed = 0;
+        boolean next = false, start = false;
         for (Pawn pawn : mypawns) {
+            int targetX = 0;
+            int targetY = 0;
+            for (Pawn p : mypawns){
+                if (p.getX() == 0 && p.getY() == 0){
+                    for (Pawn pa : mypawns){
+                        if(pa.getX() == 1 && pa.getY() == 1){
+                            for (Pawn paw : mypawns){
+                                if (paw.getX() == 1 && paw.getY() == -1) {
+                                    freeze(0, 0);
+                                    freeze(1, 1);  
+                                    freeze(1, -1);
+                                    start = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if (start){
+                for (Pawn p : mypawns){
+                    if (p.getX() == 2 && p.getY() == -2){
+                        for (Pawn pa : mypawns){
+                            if(pa.getX() == 2 && pa.getY() == 0){
+                                for (Pawn paw : mypawns){
+                                    if (paw.getX() == 2 && paw.getY() == 2) {
+                                        freeze(2, -2);
+                                        freeze(2, 0);
+                                        freeze(2, 2);
+                                        targetX = 2;
+                                        targetY = -2;
+                                        next = true;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            if(next){
+                for (Pawn pa : mypawns){
+                    if(pa.getX() == 3 && pa.getY() == -1){
+                        for (Pawn paw : mypawns){
+                            if (paw.getX() == 3 && paw.getY() == -3) {
+                                freeze(3, -1);
+                                freeze(3, -3);  
+                                targetX = 2;
+                                targetY = 2;
+                            }
+                        }
+                    }
+                }
+            }
             int pawnX = pawn.getX();
             int pawnY = pawn.getY();
 
+
             int bestX = pawnX, bestY = pawnY;
-            int bestDistance = Math.abs(targetX - pawnX) + Math.abs(targetY - pawnY);
+            double bestDistance = (1.25* Math.abs(targetX - pawnX) + Math.abs(targetY - pawnY));
 
             for (Move move : pawn.getMoves()) {
                 int x = move.getX();
                 int y = move.getY();
-                int newDistance = Math.abs(targetX - x) + Math.abs(targetY - y);
-                if (newDistance <= bestDistance) {
+                double newDistance = (1.25*Math.abs(targetX - x) + Math.abs(targetY - y));
+                if (newDistance < bestDistance) {
                     bestDistance = newDistance;
                     bestX = x;
                     bestY = y;
                 }
             }
 
-            int myDistancePassed = Math.abs(bestX - pawnX) + Math.abs(bestY - pawnY);
+            double myDistancePassed = 0.9*(Math.abs(bestX - pawnX) + Math.abs(bestY - pawnY));
 
-            if (myDistancePassed > distancePassed) {
+            if (myDistancePassed >= distancePassed) {
                 distancePassed = myDistancePassed;
                 coords[0] = pawnX;
                 coords[1] = pawnY;
@@ -395,11 +434,13 @@ public class Player{
                 coords[3] = bestY;
             }
         }
-
-        //if(distancePassed == 0){
-          //  return null;
-        //} else {
             return coords;
-        //}
+    }
+    public void freeze(int x, int y){
+        for (Pawn p : mypawns){
+            if (p.getX() == x && p.getY()==y){
+                p.clearMoves();
+            }
+        }
     }
 }

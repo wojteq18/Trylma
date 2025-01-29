@@ -88,7 +88,6 @@ public class Client extends Application {
                             String saveName = msg.substring(11);
                             saveService = springContext.getBean(SaveService.class);
                             int max_player = saveService.getNumberOfPlayers(saveName);
-                            //System.out.println("Max players: " + max_player);
                             output.println(max_player);
                             System.out.flush();
                             int numberOfMoves = saveService.getMoveCount(saveName);

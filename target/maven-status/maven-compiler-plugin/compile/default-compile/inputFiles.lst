@@ -1,4 +1,3 @@
-/home/vostok/codes/Trylma/src/main/java/com/example/State.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Pawn.java
 /home/vostok/codes/Trylma/src/main/java/com/example/ChaosBoard.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Board.java
@@ -17,7 +16,9 @@
 /home/vostok/codes/Trylma/src/main/java/com/example/Move.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Game.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Main.java
+/home/vostok/codes/Trylma/src/main/java/com/example/state/ActiveState.java
 /home/vostok/codes/Trylma/src/main/java/com/example/PlayerManager.java
+/home/vostok/codes/Trylma/src/main/java/com/example/state/PlayerState.java
 /home/vostok/codes/Trylma/src/main/java/com/example/strategy/ChaosBoardStrategy.java
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/UnknownError.java
 /home/vostok/codes/Trylma/src/main/java/com/example/strategy/BoardStrategy.java
@@ -25,4 +26,5 @@
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/NotEmptyMove.java
 /home/vostok/codes/Trylma/src/main/java/com/example/Player.java
 /home/vostok/codes/Trylma/src/main/java/com/example/strategy/YinBoardStrategy.java
+/home/vostok/codes/Trylma/src/main/java/com/example/state/InactiveState.java
 /home/vostok/codes/Trylma/src/main/java/com/example/MoveFactory/MoveHandler.java

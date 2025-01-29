@@ -67,7 +67,7 @@ public class Game {
                 action = commandScanner.next();
 
                 // Jeśli gracz w kolejce jest aktywny...
-                if (players[queue].getState() == State.ACTIVE) {
+                if (players[queue].isActive()) {
                     players[queue].addMoves();
 
                     if (!players[queue].isBot()) {
@@ -132,7 +132,7 @@ public class Game {
                     } 
                     // 2. Tura bota
                     else {
-                        int[] bestCoords = players[queue].bestMove();
+                        int[] bestCoords = players[queue].bestMoveBlack();
                             // Bot lokalnie wykonuje ruch
                         players[queue].move(bestCoords[0], bestCoords[1], 
                                             bestCoords[2], bestCoords[3]);
@@ -170,28 +170,4 @@ public class Game {
         }
         scanner.close();
     }
-
-    private boolean isLastActiveBot(int currentQueue, Player[] players) {
-        int numberOfPlayers = players.length;
-
-        // Sprawdzamy kolejnych graczy w kolejce
-        for (int i = 1; i < numberOfPlayers; i++) {
-            int nextQueue = (currentQueue + i) % numberOfPlayers;
-            Player nextPlayer = players[nextQueue];
-
-            if (nextPlayer.getState() == State.ACTIVE && !nextPlayer.isBot()) {
-                // Jeśli znajdziemy aktywnego człowieka, obecny bot jest ostatnim
-                return true;
-            }
-
-            if (nextPlayer.getState() == State.ACTIVE && nextPlayer.isBot()) {
-                // Jeśli znajdziemy aktywnego bota, obecny bot nie jest ostatnim
-                return false;
-            }
-        }
-
-        // Jeśli nie znaleziono aktywnego człowieka, obecny bot jest ostatnim
-        return true;
-    }
-
 }
