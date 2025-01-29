@@ -34,6 +34,7 @@ public class BoardCreator {
         public void create(VBox root, HashMap<Position, Circle> circles) {
             Platform.runLater(() -> {
             root.getChildren().clear();
+            root.setStyle("-fx-background-color: pink;");
             HBox upper = new HBox(10);
             HBox lower = new HBox(10);
             Button button = new Button("Wait");
