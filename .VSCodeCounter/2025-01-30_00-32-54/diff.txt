@@ -1,0 +1,52 @@
+Date : 2025-01-30 00:32:54
+Directory : /home/vostok/codes/Trylma
+Total : 12 files,  -2 codes, -12 comments, 2 blanks, all -12 lines
+
+Languages
++----------+------------+------------+------------+------------+------------+
+| language | files      | code       | comment    | blank      | total      |
++----------+------------+------------+------------+------------+------------+
+| Java     |         11 |          5 |        -11 |          4 |         -2 |
+| Rust     |          1 |         -7 |         -1 |         -2 |        -10 |
++----------+------------+------------+------------+------------+------------+
+
+Directories
++----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| path                                                                                   | files      | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+| .                                                                                      |         12 |         -2 |        -12 |          2 |        -12 |
+| Server                                                                                 |          4 |        -28 |         -5 |         -9 |        -42 |
+| Server/Client                                                                          |          3 |        -21 |         -4 |         -7 |        -32 |
+| Server/Client/src                                                                      |          3 |        -21 |         -4 |         -7 |        -32 |
+| Server/Client/src/main                                                                 |          3 |        -21 |         -4 |         -7 |        -32 |
+| Server/Client/src/main/java                                                            |          3 |        -21 |         -4 |         -7 |        -32 |
+| Server/Client/src/main/java/com                                                        |          3 |        -21 |         -4 |         -7 |        -32 |
+| Server/Client/src/main/java/com/example                                                |          3 |        -21 |         -4 |         -7 |        -32 |
+| Server/src                                                                             |          1 |         -7 |         -1 |         -2 |        -10 |
+| src                                                                                    |          8 |         26 |         -7 |         11 |         30 |
+| src/main                                                                               |          8 |         26 |         -7 |         11 |         30 |
+| src/main/java                                                                          |          8 |         26 |         -7 |         11 |         30 |
+| src/main/java/com                                                                      |          8 |         26 |         -7 |         11 |         30 |
+| src/main/java/com/example                                                              |          8 |         26 |         -7 |         11 |         30 |
+| src/main/java/com/example (Files)                                                      |          5 |        -13 |         -7 |          1 |        -19 |
+| src/main/java/com/example/state                                                        |          3 |         39 |          0 |         10 |         49 |
++----------------------------------------------------------------------------------------+------------+------------+------------+------------+------------+
+
+Files
++----------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| filename                                                                               | language | code       | comment    | blank      | total      |
++----------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
+| /home/vostok/codes/Trylma/Server/Client/src/main/java/com/example/BoardCreator.java    | Java     |          1 |          0 |          0 |          1 |
+| /home/vostok/codes/Trylma/Server/Client/src/main/java/com/example/Client.java          | Java     |          0 |         -1 |          0 |         -1 |
+| /home/vostok/codes/Trylma/Server/Client/src/main/java/com/example/DataInitializer.java | Java     |        -22 |         -3 |         -7 |        -32 |
+| /home/vostok/codes/Trylma/Server/src/Server.rs                                         | Rust     |         -7 |         -1 |         -2 |        -10 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/ChaosBoard.java                    | Java     |        -19 |          0 |          1 |        -18 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/Game.java                          | Java     |        -19 |         -3 |         -4 |        -26 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/Player.java                        | Java     |         39 |         -4 |          6 |         41 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/PlayerManager.java                 | Java     |          0 |          0 |          1 |          1 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/State.java                         | Java     |        -14 |          0 |         -3 |        -17 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/state/ActiveState.java             | Java     |         16 |          0 |          4 |         20 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/state/InactiveState.java           | Java     |         16 |          0 |          4 |         20 |
+| /home/vostok/codes/Trylma/src/main/java/com/example/state/PlayerState.java             | Java     |          7 |          0 |          2 |          9 |
+| Total                                                                                  |          |         -2 |        -12 |          2 |        -12 |
++----------------------------------------------------------------------------------------+----------+------------+------------+------------+------------+
